@@ -1,0 +1,155 @@
+{
+  "video": "/Users/shaygabison/demo_build/ts_source/pilot.mp4",
+  "duration_s": 316.1,
+  "has_audio": true,
+  "fps_sampled": 1.0,
+  "score": 90,
+  "issues": [
+    "flat/blank frames (white or black glitch) at [2.0]"
+  ],
+  "sections": [
+    {
+      "name": "title",
+      "start": 0.0,
+      "end": 19.0,
+      "frames": 19,
+      "avg_motion": 25.531,
+      "max_motion": 146.468,
+      "avg_sharpness": 1440.7,
+      "min_stddev": 0.0,
+      "bad_frames": []
+    },
+    {
+      "name": "s2arch",
+      "start": 34.0,
+      "end": 66.0,
+      "frames": 32,
+      "avg_motion": 17.217,
+      "max_motion": 104.27,
+      "avg_sharpness": 2257.8,
+      "min_stddev": 13.1,
+      "bad_frames": []
+    },
+    {
+      "name": "s2code",
+      "start": 68.0,
+      "end": 90.0,
+      "frames": 22,
+      "avg_motion": 11.437,
+      "max_motion": 209.628,
+      "avg_sharpness": 292.5,
+      "min_stddev": 7.6,
+      "bad_frames": []
+    },
+    {
+      "name": "s3arch",
+      "start": 105.0,
+      "end": 143.0,
+      "frames": 38,
+      "avg_motion": 19.007,
+      "max_motion": 123.387,
+      "avg_sharpness": 2048.0,
+      "min_stddev": 19.9,
+      "bad_frames": []
+    },
+    {
+      "name": "s4arch",
+      "start": 176.0,
+      "end": 205.0,
+      "frames": 29,
+      "avg_motion": 17.476,
+      "max_motion": 108.644,
+      "avg_sharpness": 2003.2,
+      "min_stddev": 18.4,
+      "bad_frames": []
+    },
+    {
+      "name": "s5arch",
+      "start": 243.0,
+      "end": 270.0,
+      "frames": 27,
+      "avg_motion": 27.378,
+      "max_motion": 125.864,
+      "avg_sharpness": 2048.6,
+      "min_stddev": 16.0,
+      "bad_frames": []
+    },
+    {
+      "name": "end",
+      "start": 295.0,
+      "end": 314.0,
+      "frames": 19,
+      "avg_motion": 9.91,
+      "max_motion": 115.628,
+      "avg_sharpness": 933.2,
+      "min_stddev": 9.1,
+      "bad_frames": []
+    }
+  ],
+  "audio": {
+    "overall_db": -28.1,
+    "longest_silence_s": 3.0,
+    "silence_gaps": [
+      [
+        18.5,
+        20.5
+      ],
+      [
+        33.5,
+        35.5
+      ],
+      [
+        68.0,
+        70.0
+      ],
+      [
+        91.0,
+        94.0
+      ],
+      [
+        107.0,
+        109.0
+      ],
+      [
+        147.0,
+        148.5
+      ],
+      [
+        167.5,
+        170.5
+      ],
+      [
+        178.5,
+        180.0
+      ],
+      [
+        209.5,
+        211.5
+      ],
+      [
+        234.0,
+        237.0
+      ],
+      [
+        247.5,
+        249.5
+      ],
+      [
+        277.5,
+        279.0
+      ]
+    ],
+    "n_windows": 632
+  },
+  "expected": [
+    "capacity",
+    "tenant",
+    "cosmos",
+    "alltenants",
+    "dual",
+    "agcosmos",
+    "cpanel",
+    "datacenter"
+  ],
+  "missing_keywords": []
+}

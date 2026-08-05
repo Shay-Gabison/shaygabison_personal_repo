@@ -1,0 +1,50 @@
+{
+  "skill_name": "spec-driven-development",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Let's start working on ticket #4521. It's a User Story to add OAuth2 login support to the API.",
+      "expected_output": "Agent loads spec-driven-config.md, checks .spec-driven-progress/ for existing context, creates a design doc with phases 1-4, and stops to await explicit user approval before proceeding to implementation.",
+      "assertions": [
+        "Agent reads spec-driven-config.md before doing anything else",
+        "Agent checks .spec-driven-progress/ for existing progress",
+        "Agent produces a design doc covering what, why, and acceptance criteria",
+        "Agent explicitly stops and asks for approval before writing any code",
+        "Work item #4521 is referenced throughout"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "work on #7832 — it's a bug where the dashboard crashes when there are no items",
+      "expected_output": "Agent loads config and existing context, creates a concise bug-fix plan (root cause, fix approach, test plan), and halts for approval before touching code.",
+      "assertions": [
+        "Agent loads spec-driven-config.md",
+        "Plan identifies root cause and proposed fix",
+        "Plan includes a testing strategy",
+        "Agent does not write or modify code before user approval",
+        "Work item #7832 is referenced"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I need to refactor the payment module to reduce duplication. No ticket yet.",
+      "expected_output": "Agent should NOT use this skill — there is no associated ADO work item. Agent should either ask the user to create a work item first, or proceed with a simple code edit without invoking spec-driven-development.",
+      "assertions": [
+        "Agent does not produce a full spec-driven planning document",
+        "Agent does not ask for ADO config values",
+        "If agent offers to help, it notes the lack of a work item"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "We approved the plan for #4521. Go ahead and implement it.",
+      "expected_output": "Agent moves into Phase 5 implementation: creates a feature branch following the naming convention in config, implements changes with approval checkpoints before each commit and push.",
+      "assertions": [
+        "Agent creates a branch following the convention in spec-driven-config.md",
+        "Agent pauses and asks for explicit approval before each git commit",
+        "Agent pauses and asks for explicit approval before each git push",
+        "Implementation stays within the scope approved in the plan"
+      ]
+    }
+  ]
+}

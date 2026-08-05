@@ -1,0 +1,85 @@
+{
+  "skill_name": "nsp-enforce-readiness",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Can I move this NSP to enforced mode? /subscriptions/40d8.../resourceGroups/rg/providers/Microsoft.Network/networkSecurityPerimeters/my-nsp",
+      "expected_output": "Agent invokes the skill, queries over the default 7d window via the Kusto MCP, and returns a PASS/FAIL verdict per resource based on the presence of NspPublicInbound/OutboundResourceRulesAllowed events.",
+      "assertions": [
+        "Agent uses the provided NSP ARM ID (lower-cased) as the filter",
+        "Agent runs the query via a Kusto/ADX MCP tool, not ARM or az rest",
+        "Agent checks for NspPublicInboundResourceRulesAllowed and NspPublicOutboundResourceRulesAllowed categories",
+        "Agent returns a per-resource verdict phrased as 'no blockers observed in available logs', not an unconditional guarantee"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Is my NSP association ready for enforced mode? Use a 90 day window. /subscriptions/.../networkSecurityPerimeters/prod-nsp",
+      "expected_output": "For a window longer than 7d, the agent uses the aggregated AccessLogsWithSTag table (90d retention) as the primary source rather than the per-RP raw logs.",
+      "assertions": [
+        "Agent routes the 90d query to cluster nsp-logs-summary.eastus / db NspAggregatedLogs / table AccessLogsWithSTag",
+        "Agent does NOT run a 90d query against per-RP raw clusters (Cosmos 7d, KV 30d, Storage 60d)",
+        "Agent returns a verdict per resource"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Create a new NSP and associate this storage account with it.",
+      "expected_output": "Agent should NOT use this skill — creating NSPs / associating resources / rule authoring are out of scope. The skill is read-only enforce-readiness analysis.",
+      "assertions": [
+        "Agent does not run the enforce-readiness KQL",
+        "Agent clarifies this skill only evaluates enforce-readiness from logs and does not create or modify NSPs"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Check enforce readiness for my NSP but I don't have read permissions on the NSP resource.",
+      "expected_output": "Agent proceeds anyway, because the skill works purely from access logs and does not require Microsoft.Network/networkSecurityPerimeters/*/read.",
+      "assertions": [
+        "Agent does not require ARM read permissions",
+        "Agent runs the log-based analysis and returns a verdict"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Check my Cosmos DB NSP association readiness over the last 30 days on the raw logs. /subscriptions/.../networkSecurityPerimeters/cosmos-nsp",
+      "expected_output": "Agent recognizes Cosmos raw retention is only 7 days, so a 30d raw query would silently truncate and produce a false PASS. It either moves Cosmos to the aggregated AccessLogsWithSTag table (90d) or reports Cosmos as truncated/Unevaluated — never a clean PASS.",
+      "assertions": [
+        "Agent does NOT report a clean PASS from a 30d Cosmos raw query",
+        "Agent either uses AccessLogsWithSTag for the 30d window or explicitly flags Cosmos raw retention truncation (7d)",
+        "Agent surfaces the retention caveat to the user"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "My NSP shows Service Endpoint traffic under NspPublicInboundResourceRulesAllowed. What rule should I add?",
+      "expected_output": "Agent recommends configuring a Network Identifier on the source (Service Endpoint TSG) as the primary fix, and treats MicrosoftPublicIPSpace as a NON-COMPLIANT exception requiring Security sign-off — not a normal option.",
+      "assertions": [
+        "Agent recommends Network Identifier (https://aka.ms/ns221serviceendpoint) as the primary remediation",
+        "Agent labels MicrosoftPublicIPSpace as NON-COMPLIANT / requiring explicit Security sign-off",
+        "Agent does not present MicrosoftPublicIPSpace as the default or preferred fix",
+        "Agent matches SE flows using the broad 'ServiceEndpoint' token, not the narrower 'ServiceEndpointIP'"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Run enforce-readiness on my NSP. The Storage RP cluster query fails with 'access denied', the others succeed with no blocker rows.",
+      "expected_output": "Agent marks the Storage RP as 'Unevaluated / query unavailable' and does NOT report the overall NSP as READY. A failed RP query is never treated as a passing (0-blocker) result.",
+      "assertions": [
+        "Agent reports Storage as Unevaluated, not READY",
+        "Agent does not equate a failed/denied query with zero blockers",
+        "Overall verdict is not an unconditional READY while an RP is unevaluated"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "My Key Vault NSP shows access-log rows in the sniff. Does that mean NSP logging is enabled for it?",
+      "expected_output": "Agent explains that KeyVault emits access logs even when NSP logging is disabled, so the presence of KV rows does not prove logging is on, and readiness for KV cannot be inferred from row count alone.",
+      "assertions": [
+        "Agent states KV logs appear even when NSP logging is disabled",
+        "Agent does not infer KV NSP logging state from the sniff row count",
+        "Agent reads KV ResourceRulesAllowed together with perimeter categories rather than assuming"
+      ]
+    }
+  ]
+}

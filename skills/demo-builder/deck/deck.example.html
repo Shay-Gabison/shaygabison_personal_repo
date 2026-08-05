@@ -1,0 +1,116 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="deck.css"></head>
+<body>
+
+<!-- ===== TITLE ===== -->
+<section class="slide hero" id="title">
+  <div class="eyebrow rise d1">MDA · DATA SERVICES</div>
+  <div class="title rise d2">data-dbset-operator<br><span class="arrow">DataFlux &rarr; EV2</span> · STG cutover</div>
+  <div class="sub rise d4">Moving the operator binary <b>and</b> every CRD instance off DataFlux GitOps onto the
+    consolidated <b>EV2</b> deploy — rehearsed end-to-end on a live staging cluster, with per-phase
+    validation gates and a <b>&lt; 5&nbsp;minute</b> rollback.</div>
+  <div class="pills">
+    <div class="pill rise d6">Users</div>
+    <div class="pill rise d7">CRDs</div>
+    <div class="pill rise d8">Secrets</div>
+    <div class="pill rise d9">Mappings</div>
+    <div class="pill rise d10">Console</div>
+    <div class="pill b rise d11">Rollback &le; 5m</div>
+  </div>
+  <div class="foot"><span class="rise d12">STG · WEU · 106</span><span class="rise d12">read-only walkthrough</span></div>
+</section>
+
+<!-- ===== CUTOVER MODEL / GATE 0 ===== -->
+<section class="slide" id="cutover">
+  <div class="sectionTag rise d1">CUTOVER MODEL · GATE 0</div>
+  <div class="win rise d2">
+    <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="name">stg-weu-106 — DataFlux off first</span></div>
+    <div class="term">
+      <div class="cmd rise d3"><span class="p">$</span> <span class="c">kubectl</span> <span class="a">get pods -n flux-system</span> <span class="h"># is GitOps still driving the cluster?</span></div>
+      <div class="rise d4"><span class="lblR">No resources found</span> <span class="dim">in flux-system — DataFlux GitOps is OFF.</span></div>
+      <div class="sp"></div>
+      <div class="cmd rise d5"><span class="p">$</span> <span class="c">kubectl</span> <span class="a">get deploy -n flux-system source-controller kustomize-controller</span></div>
+      <div class="rise d6"><span class="dim">Error: deployments.apps "source-controller" </span><span class="lblR">not found</span></div>
+      <div class="sp"></div>
+      <div class="cmd rise d7"><span class="p">$</span> <span class="c">helm</span> <span class="a">status dataflux -n flux-system</span> <span class="h"># release kept intact, scaled to 0</span></div>
+      <div class="rise d8"><span class="dim">STATUS: </span><span class="val">deployed</span> <span class="dim">· replicas </span><span class="val">0/0</span> <span class="dim">· revision unchanged</span></div>
+    </div>
+  </div>
+  <div class="callout warn rise d9">&#9888; Gate 0 — DataFlux is turned <b>off first</b>, never deleted. The release stays installed, so
+    rollback is a single <b>scale-back to 1</b> — under 5 minutes.</div>
+</section>
+
+<!-- ===== STARTUP GATE ===== -->
+<section class="slide" id="startup">
+  <div class="sectionTag rise d1">STARTUP GATE · OPERATOR HEALTH</div>
+  <div class="win rise d2">
+    <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="name">ns mda-data-services — new operator, nothing under management yet</span></div>
+    <div class="term">
+      <div class="cmd rise d3"><span class="p">$</span> <span class="c">kubectl</span> <span class="a">get pods -n mda-data-services</span> <span class="h"># EV2-deployed, image buddy_169578273_1</span></div>
+      <div class="rise d4"><span class="dim">NAME</span>                                          <span class="dim">READY</span>  <span class="dim">STATUS</span>   <span class="dim">RESTARTS</span>  <span class="dim">AGE</span></div>
+      <div class="rise d5">dbset-operator-controller-manager-7c9f...     <span class="val">1/1</span>    <span class="val">Running</span>  <span class="val">0</span>         2d13h</div>
+      <div class="sp"></div>
+      <div class="cmd rise d6"><span class="p">$</span> <span class="c">kubectl</span> <span class="a">logs deploy/dbset-operator -n mda-data-services | tail</span></div>
+      <div class="rise d7"><span class="dim">"msg":"Starting workers" controller=</span><span class="blue">mongouserentry</span> <span class="dim">worker count=1</span></div>
+      <div class="rise d8"><span class="dim">"msg":"Starting workers" controller=</span><span class="blue">collectionmappingentry</span> <span class="dim">worker count=1</span></div>
+      <div class="rise d9"><span class="dim">"msg":"successfully reconciled" — </span><span class="val">0 errors</span><span class="dim">, leader-elected</span></div>
+    </div>
+  </div>
+  <div class="callout rise d10">Startup gate is <b>fail-stop</b>: the operator comes up healthy with <b>0 restarts</b> and nothing
+    under management — components are handed over one at a time, only after this gate is green.</div>
+</section>
+
+<!-- ===== HANDOVER + VALIDATION ===== -->
+<section class="slide" id="handover">
+  <div class="sectionTag rise d1">COMPONENT HAND-OVER · A0 &rarr; E</div>
+  <div class="win rise d2">
+    <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="name">order: Users &rarr; CRDs &rarr; Secrets &rarr; Mappings &rarr; Console (SLA-sensitive, last)</span></div>
+    <div class="term">
+      <div class="cmd rise d3"><span class="p">$</span> <span class="c">kubectl</span> <span class="a">get mongouserentry,mongodbsetentry,cosmostargetentry,collectionmappingentry -A --no-headers | wc -l per kind</span></div>
+      <div class="rise d4"><span class="lblG">handed over &amp; reconciling:</span></div>
+      <div class="rise d5"><span class="dim">  mongouser </span><span class="val">35</span><span class="dim">   mongodbset </span><span class="val">32</span><span class="dim">   cosmostarget </span><span class="val">34</span><span class="dim">   mapping </span><span class="val">34</span><span class="dim">   redis </span><span class="val">2</span><span class="dim">   cpanel </span><span class="val">10</span></div>
+      <div class="rise d6"><span class="dim">  managed secrets in Key Vault: </span><span class="val">452</span> <span class="dim">— all owned by the operator now</span></div>
+      <div class="sp"></div>
+      <div class="cmd rise d7"><span class="p">$</span> <span class="c">kubectl</span> <span class="a">get collectionmappingentry apiconnectors-mma -o jsonpath='{.status}'</span></div>
+      <div class="rise d8"><span class="dim">phase: </span><span class="val">"successful execution"</span></div>
+      <div class="cmd rise d9"><span class="p">$</span> <span class="c">kubectl</span> <span class="a">get mongodbsetentry dbset-1-entitiesmongodb -o jsonpath='{.status}'</span></div>
+      <div class="rise d10"><span class="dim">currentHosts: set · currentUser: </span><span class="val">appanyentitiesuser2</span> <span class="dim">— live reconcile confirmed</span></div>
+    </div>
+  </div>
+  <div class="callout rise d11">Each phase has a <b>validation gate</b>: the component only counts as handed over once its CRs report a
+    <b>successful</b> reconcile against the live backend — not merely "applied".</div>
+</section>
+
+<!-- ===== CHECKLIST + ROLLBACK ===== -->
+<section class="slide" id="checklist">
+  <div class="sectionTag rise d1">PER-PHASE CHECKLIST · ROLLBACK DRILL</div>
+  <div class="h2 rise d2">Validation checklist &mdash; STG rehearsal</div>
+  <div class="rowck rise d3"><span class="ok">&#10003;</span><span class="k">Gate 0 — DataFlux off</span><span class="e">flux-system empty · release intact (0/0)</span></div>
+  <div class="rowck rise d4"><span class="ok">&#10003;</span><span class="k">Startup gate</span><span class="e">operator 1/1 · 0 restarts · leader elected</span></div>
+  <div class="rowck rise d5"><span class="ok">&#10003;</span><span class="k">Users / CRDs / Secrets</span><span class="e">35 users · 452 secrets reconciled</span></div>
+  <div class="rowck rise d6"><span class="ok">&#10003;</span><span class="k">Mappings</span><span class="e">apiconnectors-mma → successful execution</span></div>
+  <div class="rowck rise d7"><span class="ok">&#10003;</span><span class="k">Console (SLA-sensitive)</span><span class="e">handed over last · cpanel 10 healthy</span></div>
+  <div class="callout warn rise d9">&#9888; <b>Rollback drill (read-only):</b> if any gate fails, <span class="ink">scale DataFlux back to 1</span> —
+    <b>helm upgrade --set replicas=1</b>. Kept intact the whole time, so recovery is <b>&lt; 5 minutes</b>. Not executed here.</div>
+</section>
+
+<!-- ===== END ===== -->
+<section class="slide hero" id="end">
+  <div class="eyebrow rise d1">STG REHEARSAL · COMPLETE</div>
+  <div class="title rise d2" style="font-size:64px">Cutover validated end-to-end</div>
+  <div class="sub rise d4">DataFlux off, operator healthy, every component handed over and reconciling, rollback lever proven.
+    <br><b>Next:</b> Prod3 primary rollout + ~1 week soak — then rings vs Gov.</div>
+  <div class="pills">
+    <div class="pill rise d6">Gate 0 ✓</div>
+    <div class="pill rise d7">Startup ✓</div>
+    <div class="pill rise d8">Hand-over ✓</div>
+    <div class="pill rise d9">Validation ✓</div>
+    <div class="pill b rise d10">Rollback ✓</div>
+  </div>
+</section>
+
+<script>
+  const id = new URLSearchParams(location.search).get('slide') || 'title';
+  const el = document.getElementById(id);
+  if(el) el.classList.add('show');
+</script>
+</body></html>

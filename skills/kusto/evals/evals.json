@@ -1,0 +1,49 @@
+{
+  "skill_name": "kusto",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Find the values of the gru flag adallom.shared.cosmosdb.domains.enabled across environments. mhash is 881a5ba6.",
+      "expected_output": "Agent reads templates/kusto-config.md for cluster/table metadata, reads library/queries/gru-flags.md (and templates/kusto-queries.md) for inspiration, finds the 'Find values of a gru flag per environment / tenant / ring' library entry, synthesises a fresh query using its cluster/database/table/federation pattern with mhash=881a5ba6 and flag=adallom.shared.cosmosdb.domains.enabled, runs the query via the Kusto MCP, and returns a compact result table.",
+      "assertions": [
+        "Agent reads templates/kusto-config.md before writing any query",
+        "Agent reads library/queries/gru-flags.md (library is loaded alongside team queries)",
+        "Agent borrows the gru-flag entry's structure (cluster/database/table/federation) rather than copying it verbatim",
+        "Agent uses mhash 881a5ba6 and the provided flag name in the synthesised query",
+        "Agent runs the query via the Azure Kusto MCP server (not via az cli or curl)",
+        "Agent returns results grouped/ordered by env, tenantId, ring"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Run this KQL: print 'hello'",
+      "expected_output": "Agent recognizes a direct KQL paste, skips templates/kusto-queries.md, and runs the query via the Kusto MCP using the configured default cluster/database when none is supplied in the paste.",
+      "assertions": [
+        "Agent invokes the Kusto MCP query tool",
+        "Agent does not read templates/kusto-queries.md (direct paste, no inspiration needed)",
+        "Agent does not refuse or insist the user use a saved entry for an explicit KQL paste",
+        "Agent does not offer to append the paste to templates/kusto-queries.md"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "What's the schema of the Users table in our SQL database?",
+      "expected_output": "Agent should NOT use this skill — the data source is SQL, not Kusto. Agent declines and suggests an appropriate alternative.",
+      "assertions": [
+        "Agent does not invoke the Kusto MCP",
+        "Agent does not read templates/kusto-config.md",
+        "Agent clarifies that this skill is Kusto-only"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Show me everything in the compliance table for the last 90 days.",
+      "expected_output": "Agent includes a brief heads-up that 90 days is a wide scan, synthesises a query from the closest saved entry with the wider time range, and runs it directly without blocking on confirmation.",
+      "assertions": [
+        "Agent includes a heads-up about the wide time range in its response",
+        "Agent runs the query without asking for explicit confirmation",
+        "Agent does not block waiting for user approval before executing"
+      ]
+    }
+  ]
+}

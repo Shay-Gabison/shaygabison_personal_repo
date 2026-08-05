@@ -1,0 +1,34 @@
+{
+  "skill_name": "icm-oncall",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Who's on call this week across our teams?",
+      "expected_output": "Agent invokes the skill, loads the team registry from templates/icm-oncall-config.md, scrapes each team's current on-call Primary engineer from the IcM portal via Playwright, stores rows in the local table, and prints a clean per-team PE table.",
+      "assertions": [
+        "Agent loads the team registry from templates/icm-oncall-config.md (one teamId per IcM request)",
+        "Agent navigates the IcM portal current on-call view via the Playwright browser",
+        "Agent returns a per-team table of Primary engineers",
+        "Agent flags teams with no schedule rather than erroring out"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Give me the on-call list including backup engineers.",
+      "expected_output": "Agent scrapes both Primary and Backup roles by adjusting the role filter and presents both per team.",
+      "assertions": [
+        "Agent scrapes the Backup role in addition to Primary",
+        "Agent presents Primary and Backup per team"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Open an IcM incident for a specific team from the registry.",
+      "expected_output": "Agent should NOT use this skill — creating incidents / paging / editing schedules is out of scope. This skill only reads the current on-call list.",
+      "assertions": [
+        "Agent does not attempt to create an incident with this skill",
+        "Agent clarifies the skill only retrieves the current on-call PE list"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="deck.css"></head>
+<body>
+
+<!-- HERO / TITLE -->
+<section class="slide hero" id="title">
+  <div class="eyebrow rise d1">DATA-FLUX &middot; MSAZURE / MCAS</div>
+  <div class="title rise d2">Adding CRs &amp; Deploying<br><span class="arrow">the consolidated layout</span></div>
+  <div class="sub rise d4">DBSet CRs now live on <b>main</b> in <b>env-specific-consolidated</b> and ship via an <b>Ev2 pipeline</b> &mdash; a CR deploys only if it is listed in a <b>kustomization.yaml</b>.</div>
+  <div class="pills">
+    <div class="pill rise d6">1 &middot; Add the CR</div>
+    <div class="pill rise d7">2 &middot; Wire kustomize</div>
+    <div class="pill rise d8">3 &middot; PR into main</div>
+    <div class="pill b rise d9">4 &middot; Deploy pipeline</div>
+  </div>
+  <div class="foot"><span class="rise d10">STAGE &middot; branch main</span><span class="rise d10">read-only walkthrough</span></div>
+</section>
+
+<!-- ARCHITECTURE / HOW IT WORKS -->
+<section class="slide" id="arch">
+  <div class="sectionTag rise d1">ARCHITECTURE &middot; HOW A CR SHIPS</div>
+  <div class="archRow">
+    <div class="node rise d2">
+      <div class="nodeTag">SOURCE &middot; GIT</div>
+      <div class="nodeTitle">data-flux &middot; main</div>
+      <div class="nodeSub">PR-protected branch</div>
+      <div class="nodeLine">CR added under <span class="mono">env-specific-consolidated/stage</span></div>
+      <div class="nodeLine">listed in <span class="mono">kustomization.yaml</span></div>
+    </div>
+    <div class="conn rise d3">&#8594;</div>
+    <div class="node hot rise d4">
+      <div class="nodeTag o">PIPELINE &middot; EV2 SHELL</div>
+      <div class="nodeTitle">KustomizeDeploy</div>
+      <div class="nodeSub">Buddy 465561 &middot; Official 465558</div>
+      <div class="nodeLine">copies repo Ev2 + kustomize tree</div>
+      <div class="nodeLine">runs <span class="mono">kubectl apply --server-side -k</span></div>
+      <div class="nodeLine">Stage default <span class="chip">DryRun=true</span></div>
+    </div>
+    <div class="conn rise d5">&#8594;</div>
+    <div class="node rise d6">
+      <div class="nodeTag grn">TARGET &middot; CLUSTER</div>
+      <div class="nodeLine"><span class="num">1</span>&nbsp; CRs applied to <span class="mono">mda-data-services</span></div>
+      <div class="nodeLine"><span class="num">2</span>&nbsp; dbset-operator reconciles</div>
+      <div class="nodeLine"><span class="num">3</span>&nbsp; Mongo &#8594; Cosmos migration</div>
+    </div>
+  </div>
+  <div class="callout rise d8">Not Flux anymore &mdash; <b>a CR only deploys if it is listed in a kustomization.yaml</b>. For now only <b>Stage</b> is on this path; Prod/Gov migrate gradually.</div>
+</section>
+
+<!-- END / CHECKLIST -->
+<section class="slide" id="end">
+  <div class="sectionTag rise d1">CHECKLIST &middot; BEFORE THE PR</div>
+  <div class="rowck rise d3"><span class="ok">&#10003;</span><span class="k">CR under env-specific-consolidated/&lt;env&gt;/&lt;kind-dir&gt;</span><span class="e">not legacy base/ops</span></div>
+  <div class="rowck rise d4"><span class="ok">&#10003;</span><span class="k">Listed in kind-dir + env-root kustomization.yaml</span><span class="e">both levels</span></div>
+  <div class="rowck rise d5"><span class="ok">&#10003;</span><span class="k">kubectl kustomize renders your CR</span><span class="e">verify locally</span></div>
+  <div class="rowck rise d6"><span class="ok">&#10003;</span><span class="k">CollectionMappingEntry: bump spec.version</span><span class="e">validate-pr-policy.sh</span></div>
+  <div class="rowck rise d7"><span class="ok">&#10003;</span><span class="k">Deploy: Buddy 465561 (Stage) &middot; Official 465558 (Prod/Gov)</span><span class="e">dryRun=false to apply</span></div>
+  <div class="callout warn rise d8">&#9888; <b>Prod is gated:</b> Official runs stop for an <b>Ev2 release approval</b> + a <b>manual validation</b> before the deploy stage applies.</div>
+</section>
+
+<script>
+  const id=new URLSearchParams(location.search).get('slide')||'title';
+  const el=document.getElementById(id); if(el) el.classList.add('show');
+</script>
+</body></html>

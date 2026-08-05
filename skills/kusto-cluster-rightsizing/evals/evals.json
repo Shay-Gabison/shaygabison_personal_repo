@@ -1,0 +1,36 @@
+{
+  "skill_name": "kusto-cluster-rightsizing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Right-size these Kusto clusters and write recommendations into compute-details.xlsx: mdaprodeus1, mdaprodweu2",
+      "expected_output": "Agent runs the full pipeline: normalizes the cluster names into (name, region) pairs, fetches 30-day Engine Health metrics from Geneva MDM, appends 30dAvg/30dMax columns, runs the embedded analyzer to add Recommendation and Why columns, regenerates the Summary tab, and applies traffic-light row coloring — preserving existing hyperlinks.",
+      "assertions": [
+        "Agent fetches Engine Health metrics from Geneva MDM via the Geneva MCP",
+        "Agent appends <Metric> 30dAvg / <Metric> 30dMax columns to the xlsx",
+        "Agent writes Recommendation and Why columns and regenerates the Summary tab",
+        "Agent applies traffic-light row coloring by recommendation",
+        "Agent preserves existing dashboard hyperlinks"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Analyze this existing right-sizing xlsx — it already has the metrics, just run the analyzer with colors.",
+      "expected_output": "Agent runs in analyze-only mode: it skips the Geneva fetch and runs the embedded analyzer over the existing metric columns to add recommendations and coloring.",
+      "assertions": [
+        "Agent does NOT re-fetch metrics from Geneva",
+        "Agent runs the embedded analyzer over existing columns",
+        "Agent adds Recommendation/Why and traffic-light coloring"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Right-size our SQL Server databases by CPU.",
+      "expected_output": "Agent should NOT use this skill — it targets ADX/Kusto clusters via Geneva Engine Health metrics, not SQL Server. Agent clarifies scope.",
+      "assertions": [
+        "Agent does not run the Geneva Engine Health pipeline",
+        "Agent clarifies the skill is for ADX/Kusto cluster right-sizing only"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "skill": "skills-config",
+  "cases": [
+    {
+      "id": "configure-after-install",
+      "prompt": "I just ran install.sh and installed the MDA AI skills. Help me configure them.",
+      "expected_behavior": "Agent detects installed skills by scanning sibling skill directories, reads each skill's docs/setup.md, finds template files in each skill's templates/ directory, auto-resolves placeholders where possible, asks user only for unknown values, shows full configured file for approval before writing.",
+      "assertions": [
+        "Agent scans sibling skill directories for installed skills",
+        "Agent reads docs/setup.md for each skill",
+        "Agent locates template files in each skill's templates/ directory",
+        "Agent attempts to auto-resolve placeholder values before asking the user",
+        "Agent asks user only for placeholders that could not be resolved",
+        "Agent shows complete configured file and waits for explicit user approval before writing",
+        "Agent scans for remaining {{ patterns after saving and repeats if any found"
+      ]
+    },
+    {
+      "id": "configure-by-name",
+      "prompt": "configure my skills",
+      "expected_behavior": "Agent activates skills-config skill and begins configuration walk-through.",
+      "assertions": [
+        "Agent uses skills-config skill",
+        "Agent does not attempt to install or reinstall skills",
+        "Agent focuses on filling in template files only"
+      ]
+    },
+    {
+      "id": "auto-resolve-from-mcp",
+      "prompt": "Configure my installed AI skills",
+      "context": "ADO MCP server is connected",
+      "expected_behavior": "Agent queries the ADO MCP server to resolve org URL, project name, and repository ID without asking the user.",
+      "assertions": [
+        "Agent detects connected ADO MCP server",
+        "Agent uses MCP tools to resolve organization URL, project name, repository ID",
+        "Agent does not ask the user for values that were resolved via MCP",
+        "Agent only asks for values that MCP could not provide"
+      ]
+    },
+    {
+      "id": "auto-resolve-from-existing-config",
+      "prompt": "Configure my installed AI skills",
+      "context": "pr-generator-config.md is already fully configured in the skill's templates/ directory",
+      "expected_behavior": "Agent reuses already-filled values (e.g. MCP_SERVER_NAME, ORGANIZATION_URL) when configuring other skills, without asking the user to re-enter them.",
+      "assertions": [
+        "Agent reads already-configured template files",
+        "Agent reuses matching values across skills",
+        "Agent does not ask user for values already present in other configs"
+      ]
+    },
+    {
+      "id": "user-approval-required",
+      "prompt": "Configure my installed AI skills",
+      "expected_behavior": "Agent shows the complete configured file to the user and waits for explicit approval before writing. If user requests changes, agent applies them and re-shows before saving.",
+      "assertions": [
+        "Agent shows full configured file before writing",
+        "Agent waits for explicit user approval",
+        "Agent does not write the file without approval",
+        "Agent re-shows file after changes and waits for approval again"
+      ]
+    },
+    {
+      "id": "validate-remaining-placeholders",
+      "prompt": "I think I filled in all the config values, can you check?",
+      "expected_behavior": "Agent scans template files for remaining {{ patterns and reports any that are still unfilled.",
+      "assertions": [
+        "Agent scans template files for {{ tokens",
+        "Agent reports any remaining placeholders by name",
+        "Agent offers to help fill in missing values"
+      ]
+    }
+  ]
+}
+

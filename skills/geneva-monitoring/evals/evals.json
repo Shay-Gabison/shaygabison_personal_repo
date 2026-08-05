@@ -1,0 +1,60 @@
+{
+  "skill_name": "geneva-monitoring",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "What namespaces exist in our main monitoring account?",
+      "expected_output": "Agent reads geneva-monitoring-config.md, identifies the main monitoring account, and calls metrics_get_namespaces against it via the configured MCP server.",
+      "assertions": [
+        "Agent reads a *geneva-monitoring-config.md file before calling any Geneva tool",
+        "Agent uses the account name from the config, not a guessed value",
+        "Agent calls metrics_get_namespaces (not metrics_get_metric_names or a Kusto query)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Read the time series for metric foo.bar in namespace baz over the last hour, sliced by env.",
+      "expected_output": "Agent first calls metrics_get_metric_config to confirm 'env' is in a pre-aggregation, then calls metrics_read_multi_time_series with endTimeUtc set at least 2 minutes before now.",
+      "assertions": [
+        "Agent calls metrics_get_metric_config before the time-series read",
+        "endTimeUtc is at least 2 minutes earlier than the current time",
+        "If env is NOT in any pre-aggregation, agent surfaces this and does not silently return InvalidSeries",
+        "Agent uses the account from the config rather than guessing"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Preview why monitor <GUID> fired yesterday.",
+      "expected_output": "Agent gets the V2 monitor config (or its config history if lastModifiedTime is recent), runs monitor_v2_preview_combination to discover combinations, then monitor_v2_preview_result with Monitor.Tenant included in the combination.",
+      "assertions": [
+        "Agent calls monitor_get_monitor_v2_configuration or kusto_get_monitor_v2_config_history",
+        "If lastModifiedTime is recent, agent uses kusto_get_monitor_v2_config_history for the historical config",
+        "Preview combination includes Monitor.Tenant alongside the targetDimensions",
+        "startTime / endTime epochs match the requested year (no off-by-year errors)"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Why did the V1 monitor 'HighErrorRate' on namespace baz / metric foo.bar fire yesterday?",
+      "expected_output": "Agent recognizes V1 has no preview API. It addresses the monitor by (namespace, metric, monitorName) — not a GUID — gets the active config at firing time via kusto_get_monitor_v1_config_history, fetches the evaluated metric via monitor_get_v1_monitor_metrics (or reads the underlying series via metrics_read_multi_time_series), and compares against the threshold manually.",
+      "assertions": [
+        "Agent does NOT call monitor_v2_preview_combination or monitor_v2_preview_result (there is no V1 preview API)",
+        "Agent addresses the monitor by (namespace, metric, monitorName), never by a GUID",
+        "Agent retrieves the config via kusto_get_monitor_v1_config_history or monitor_get_monitor_v1_configuration",
+        "Agent fetches evaluation data via monitor_get_v1_monitor_metrics or metrics_read_multi_time_series and compares it to the threshold itself",
+        "Any time-series read uses endTimeUtc at least 2 minutes before now"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Run a Kusto query against our logs table to count errors in the last hour.",
+      "expected_output": "Agent does NOT use this skill — Kusto log queries are out of scope. Agent invokes the `kusto` skill instead.",
+      "assertions": [
+        "Agent does not read geneva-monitoring-config.md",
+        "Agent does not call any Geneva metrics_* or monitor_* tool",
+        "Agent does not invoke this skill",
+        "Agent suggests / invokes the `kusto` skill"
+      ]
+    }
+  ]
+}

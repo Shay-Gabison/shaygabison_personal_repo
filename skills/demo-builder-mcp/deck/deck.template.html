@@ -1,0 +1,86 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="deck.css"></head>
+<body>
+
+<!-- Each <section class="slide" id="X"> is rendered alone via ?slide=X. Edit text + add slides. -->
+
+<!-- HERO / TITLE -->
+<section class="slide hero" id="title">
+  <div class="eyebrow rise d1">EYEBROW · UPPERCASE</div>
+  <div class="title rise d2">Product or feature<br><span class="arrow">subtitle accent</span></div>
+  <div class="sub rise d4">One or two sentences with a <b>bold phrase</b> describing the goal and the proof.</div>
+  <div class="pills">
+    <div class="pill rise d6">Step 1</div>
+    <div class="pill rise d7">Step 2</div>
+    <div class="pill rise d8">Step 3</div>
+    <div class="pill b rise d9">Highlight</div>
+  </div>
+  <div class="foot"><span class="rise d10">ENV · REGION</span><span class="rise d10">read-only walkthrough</span></div>
+</section>
+
+<!-- TERMINAL PANEL section -->
+<section class="slide" id="step1">
+  <div class="sectionTag rise d1">SECTION TAG</div>
+  <div class="win rise d2">
+    <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="name">context / what we're proving</span></div>
+    <div class="term">
+      <div class="cmd rise d3"><span class="p">$</span> <span class="c">tool</span> <span class="a">args here</span> <span class="h"># comment</span></div>
+      <div class="rise d4"><span class="dim">output line</span> <span class="val">OK</span></div>
+    </div>
+  </div>
+  <div class="callout rise d6">Takeaway sentence with a <b>bold</b> point.</div>
+</section>
+
+<!-- CHECKLIST section -->
+<section class="slide" id="checklist">
+  <div class="sectionTag rise d1">CHECKLIST</div>
+  <div class="h2 rise d2">Validation</div>
+  <div class="rowck rise d3"><span class="ok">&#10003;</span><span class="k">Item A</span><span class="e">expected result</span></div>
+  <div class="rowck rise d4"><span class="ok">&#10003;</span><span class="k">Item B</span><span class="e">expected result</span></div>
+  <div class="callout warn rise d6">&#9888; <b>Rollback (read-only):</b> describe the lever, not executed.</div>
+</section>
+
+<!-- ARCHITECTURE / HOW IT WORKS (3-node flow + callout). Generic template — edit text. -->
+<!-- Use .node.hot to highlight the central node; .nodeTag .o/.grn recolor the tag; -->
+<!-- .mono for code spans, .chip for a red badge (e.g. HTTP 429), .num for numbered writes. -->
+<section class="slide" id="arch">
+  <div class="sectionTag rise d1">ARCHITECTURE &middot; HOW IT WORKS</div>
+  <div class="archRow">
+    <div class="node rise d2">
+      <div class="nodeTag">SOURCE</div>
+      <div class="nodeTitle">input.store</div>
+      <div class="nodeSub">datastore / system of record</div>
+      <div class="nodeLine"><span class="b2">Producer</span> marks records <span class="mono">state:"ready"</span></div>
+      <div class="nodeLine">short note on scale / why it matters</div>
+    </div>
+    <div class="conn rise d3">&#8594;</div>
+    <div class="node hot rise d4">
+      <div class="nodeTag o">COMPONENT &middot; WHAT RUNS</div>
+      <div class="nodeTitle">the-thing</div>
+      <div class="nodeSub">where it runs (k8s Job / service / fn)</div>
+      <div class="nodeLine">core behavior in one line</div>
+      <div class="nodeLine">guardrail with a <span class="chip">badge</span></div>
+      <div class="nodeLine"><span class="mono">key_call</span> &mdash; safety property</div>
+    </div>
+    <div class="conn rise d5">&#8594;</div>
+    <div class="node rise d6">
+      <div class="nodeTag grn">OUTPUT &middot; EFFECTS</div>
+      <div class="nodeLine"><span class="num">1</span>&nbsp; first write &#8594; <span class="mono">output.a</span></div>
+      <div class="nodeLine"><span class="num">2</span>&nbsp; second write in <span class="mono">output.b</span></div>
+      <div class="nodeLine"><span class="num">3</span>&nbsp; cleanup <span class="mono">output.c</span></div>
+    </div>
+  </div>
+  <div class="callout rise d8">One-line invariant &mdash; <b>what is NOT changed</b> (no new API/client), and the safe mode (<b>dry-run</b> counts and writes nothing).</div>
+</section>
+
+<!-- END -->
+<section class="slide hero" id="end">
+  <div class="eyebrow rise d1">COMPLETE</div>
+  <div class="title rise d2" style="font-size:64px">Validated end-to-end</div>
+  <div class="sub rise d4">What's next.</div>
+</section>
+
+<script>
+  const id=new URLSearchParams(location.search).get('slide')||'title';
+  const el=document.getElementById(id); if(el) el.classList.add('show');
+</script>
+</body></html>

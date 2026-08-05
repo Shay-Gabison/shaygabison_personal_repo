@@ -1,0 +1,49 @@
+{
+  "skill_name": "pr-generator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm done with my feature branch. Can you open a PR for me?",
+      "expected_output": "Agent reads *config.md, runs git diff to analyse changes, extracts work item ID(s) from the branch name or commits, generates a PR title and description following the template, then creates the PR via the MCP tool and reports the PR URL.",
+      "assertions": [
+        "Agent reads a *config.md file before generating the PR",
+        "Agent calls git diff or equivalent to read the actual changes",
+        "PR title follows the <change-type>(area): description format",
+        "PR description includes What Changed, Why, and Quality Gates sections",
+        "Agent reports the PR URL after creation",
+        "Work item ID is extracted from branch name or commit messages if present"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "feature/42156/ST2/add-rate-limiting is ready. Create a pull request targeting the develop branch.",
+      "expected_output": "Agent extracts work item #42156, uses develop as targetRefName, generates appropriate PR title and description, creates PR via MCP.",
+      "assertions": [
+        "targetRefName is refs/heads/develop, not refs/heads/main",
+        "Work item #42156 is included in the workItems field",
+        "PR title reflects rate-limiting scope",
+        "PR description is under 4000 characters"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Can you review the open PRs and tell me which ones need attention?",
+      "expected_output": "Agent should NOT use this skill — the task is reviewing existing PRs, not creating a new one. Agent handles this directly without invoking pr-generator.",
+      "assertions": [
+        "Agent does not call repo_create_pull_request",
+        "Agent does not read a pr-generator-config.md",
+        "Agent answers the question about existing PRs using available tools"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "summarize what changed in my last commit so I can paste it into a PR description",
+      "expected_output": "Agent uses this skill to generate a PR description from the diff, even though the user didn't say 'create PR'. Agent may offer to create the PR or just output the description.",
+      "assertions": [
+        "Agent reads the git diff or recent commit",
+        "Agent produces a structured PR description with What Changed and Why sections",
+        "Description is factual and based on actual diff content"
+      ]
+    }
+  ]
+}

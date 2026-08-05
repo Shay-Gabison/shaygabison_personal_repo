@@ -1,0 +1,45 @@
+{
+  "skill_name": "teams-notifications",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "PR #8812 just got created. Can you send the team a notification about it?",
+      "expected_output": "Agent generates a formatted message following the skill's message format, then runs Send-PRTeamsNotification.ps1 with the correct PullRequestId, Message, and Destination. Reports success with the PR URL.",
+      "assertions": [
+        "Agent generates a message matching the emoji + title + author + type + work items format",
+        "Agent calls scripts/Send-PRTeamsNotification.ps1 with -PullRequestId 8812",
+        "Agent uses a Destination value from the config (does not hardcode a destination)",
+        "Agent confirms the notification was sent and includes the PR link"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "tell the team about the new PR",
+      "expected_output": "Even without an explicit PR number, agent asks for the PR ID (or reads it from context) and proceeds to send a Teams notification — skill is triggered by 'tell the team' intent.",
+      "assertions": [
+        "Agent invokes the teams-notifications skill (does not just answer with text)",
+        "Agent asks for PR ID if not provided, or reads it from recent context",
+        "Agent does not skip the notification"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Send an email to the engineering team about PR #8812.",
+      "expected_output": "Agent should NOT use this skill — the destination is email, not Teams. Agent handles this with a different approach or explains it cannot send email.",
+      "assertions": [
+        "Agent does not call Send-PRTeamsNotification.ps1",
+        "Agent does not reference Teams configuration"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "The deployment to staging succeeded. Can you post a message in Teams?",
+      "expected_output": "Agent uses this skill for a non-PR Teams notification (deployment event). Generates an appropriate message and runs the script.",
+      "assertions": [
+        "Agent invokes teams-notifications skill for this non-PR event",
+        "Message reflects deployment context, not a generic PR template",
+        "Agent calls the script with a suitable Destination"
+      ]
+    }
+  ]
+}

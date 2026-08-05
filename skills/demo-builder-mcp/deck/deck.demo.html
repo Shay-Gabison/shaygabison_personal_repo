@@ -1,0 +1,87 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="deck.css"></head>
+<body>
+
+<!-- Each <section class="slide" id="X"> is rendered alone via ?slide=X. -->
+
+<!-- HERO / TITLE -->
+<section class="slide hero" id="title">
+  <div class="eyebrow rise d1">MDA · DEMO TOOLING</div>
+  <div class="title rise d2">demo-builder<br><span class="arrow">cross-platform demos</span></div>
+  <div class="sub rise d4">Turn any feature into a narrated screen-recording demo &mdash; on <b>Windows, macOS or Linux</b>, with <b>no admin</b> and <b>no huge downloads</b>.</div>
+  <div class="pills">
+    <div class="pill rise d6">Deck cards</div>
+    <div class="pill rise d7">Real footage</div>
+    <div class="pill rise d8">Offline voice</div>
+    <div class="pill b rise d9">Locked-down friendly</div>
+  </div>
+  <div class="foot"><span class="rise d10">WINDOWS DEV BOX · westus3</span><span class="rise d10">read-only walkthrough</span></div>
+</section>
+
+<!-- ARCHITECTURE / HOW IT WORKS -->
+<section class="slide" id="arch">
+  <div class="sectionTag rise d1">ARCHITECTURE &middot; HOW IT WORKS</div>
+  <div class="archRow">
+    <div class="node rise d2">
+      <div class="nodeTag">SOURCE</div>
+      <div class="nodeTitle">deck + specs</div>
+      <div class="nodeSub">HTML slides &amp; panel JSON</div>
+      <div class="nodeLine"><span class="b2">You</span> describe the shots &mdash; <span class="mono">title, arch, panels</span></div>
+      <div class="nodeLine">plus narration text per section</div>
+    </div>
+    <div class="conn rise d3">&#8594;</div>
+    <div class="node hot rise d4">
+      <div class="nodeTag o">PIPELINE &middot; WHAT RUNS</div>
+      <div class="nodeTitle">demo-builder</div>
+      <div class="nodeSub">python + node, no bash/tmux</div>
+      <div class="nodeLine"><span class="mono">playwright-core</span> &mdash; uses installed Edge</div>
+      <div class="nodeLine">no browser download <span class="chip">light</span></div>
+      <div class="nodeLine"><span class="mono">Piper / SAPI</span> &mdash; offline voice</div>
+    </div>
+    <div class="conn rise d5">&#8594;</div>
+    <div class="node rise d6">
+      <div class="nodeTag grn">OUTPUT &middot; EFFECTS</div>
+      <div class="nodeLine"><span class="num">1</span>&nbsp; deck cards &#8594; <span class="mono">.webm</span></div>
+      <div class="nodeLine"><span class="num">2</span>&nbsp; narration &#8594; <span class="mono">.wav</span></div>
+      <div class="nodeLine"><span class="num">3</span>&nbsp; ffmpeg stitch &#8594; <span class="mono">1440×900 mp4</span></div>
+    </div>
+  </div>
+  <div class="callout rise d8">One invariant &mdash; <b>no PyTorch, no admin, no giant packages</b>. Everything is small, portable, and offline.</div>
+</section>
+
+<!-- TERMINAL PANEL section -->
+<section class="slide" id="step1">
+  <div class="sectionTag rise d1">RUN IT</div>
+  <div class="win rise d2">
+    <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="name">windows dev box &middot; locked-down</span></div>
+    <div class="term">
+      <div class="cmd rise d3"><span class="p">$</span> <span class="c">python</span> <span class="a">pip install edge-tts; npm i playwright</span> <span class="h"># tiny, no PyTorch</span></div>
+      <div class="rise d4"><span class="dim">no large downloads were required</span> <span class="val">OK</span></div>
+      <div class="cmd rise d5"><span class="p">$</span> <span class="c">python</span> <span class="a">capture.js cards/panel/browser · tts · stitch</span></div>
+      <div class="rise d6"><span class="dim">final -&gt; demo.mp4</span> <span class="val">1440×900</span></div>
+    </div>
+  </div>
+  <div class="callout rise d8">Same commands on <b>Windows, macOS and Linux</b> &mdash; one cross-platform orchestrator.</div>
+</section>
+
+<!-- CHECKLIST section -->
+<section class="slide" id="checklist">
+  <div class="sectionTag rise d1">VALIDATION</div>
+  <div class="h2 rise d2">Verified on a real Windows Dev Box</div>
+  <div class="rowck rise d3"><span class="ok">&#10003;</span><span class="k">Admin-free toolchain</span><span class="e">user-scope python + portable node/ffmpeg</span></div>
+  <div class="rowck rise d4"><span class="ok">&#10003;</span><span class="k">playwright-core via Edge</span><span class="e">no browser download</span></div>
+  <div class="rowck rise d5"><span class="ok">&#10003;</span><span class="k">Offline narration</span><span class="e">Piper / Windows SAPI</span></div>
+  <div class="callout warn rise d6">&#9888; <b>7 / 7 PASS &middot; QA 100/100</b> &mdash; no PyTorch, no lock-ups.</div>
+</section>
+
+<!-- END -->
+<section class="slide hero" id="end">
+  <div class="eyebrow rise d1">COMPLETE</div>
+  <div class="title rise d2" style="font-size:64px">Validated end-to-end</div>
+  <div class="sub rise d4">Built &amp; recorded <b>on this Windows Dev Box</b>.</div>
+</section>
+
+<script>
+  const id=new URLSearchParams(location.search).get('slide')||'title';
+  const el=document.getElementById(id); if(el) el.classList.add('show');
+</script>
+</body></html>

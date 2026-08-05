@@ -1,0 +1,147 @@
+{
+  "skill_name": "aks-rightsizing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Analyze the rightsizing potential for lgdlp-worker service.",
+      "expected_output": "Agent reads templates/aks-rightsizing-config.md first, queries Geneva for CPU and memory metrics for lgdlp-worker across all configured clusters, applies the rightsizing rules, and returns a structured report with per-cluster findings plus a cross-cluster comparison.",
+      "assertions": [
+        "Agent reads a *aks-rightsizing-config.md file before calling any Geneva tool",
+        "Agent queries both CPU and memory metrics",
+        "Agent includes a confidence score in the recommendation",
+        "Agent includes a cross-cluster comparison for lgdlp-worker"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Show me the biggest rightsizing opportunities across all services in namespace X.",
+      "expected_output": "Agent scans multiple services in the namespace, computes per-service and per-cluster waste or savings signals, and returns the biggest opportunities ranked from highest to lowest impact.",
+      "assertions": [
+        "Agent queries multiple services rather than a single named workload",
+        "Results are sorted by estimated savings or priority score",
+        "Output includes a per-cluster breakdown for each recommended opportunity"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Generate a PR to reduce CPU request for service Y from 4 cores to 1.5 cores.",
+      "expected_output": "Agent performs the rightsizing analysis, asks whether the source of truth is Config Gen or manual Helm values, reads the target values file, prepares cluster-aware change guidance for all regions, and hands PR creation off to the pr-generator skill with confidence and caveats included in the PR description.",
+      "assertions": [
+        "Agent asks whether the source of truth is Config Gen or manual Helm values before editing",
+        "Agent reads the target values file before proposing changes",
+        "Agent includes confidence in the PR description or handoff",
+        "Agent targets all regions rather than a single region only",
+        "Agent uses or explicitly hands off to the pr-generator skill"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Check if the HPA min replicas for service Z are too high.",
+      "expected_output": "Agent reads replica behavior over the last 14 days, compares configured minimum replicas to observed usage, and gives a cautious recommendation that preserves an HA floor and calls out owner-context questions.",
+      "assertions": [
+        "Agent queries replica count over a 14-day window",
+        "Recommendation mentions cold-start, cache warm-up, or connection-pool considerations",
+        "Agent keeps a floor of 2 replicas in the suggested minimum"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Analyze CPU limits for service W which currently has CPU limit == CPU request.",
+      "expected_output": "Agent recognizes Guaranteed QoS style CPU settings, explains the throttling risk, and recommends removing the CPU limit or increasing it to roughly 3-4x request after reviewing the throttling signal.",
+      "assertions": [
+        "Agent identifies that CPU limit equals CPU request",
+        "Agent recommends removing the CPU limit or increasing it to roughly 3-4x request",
+        "Agent explains the throttling risk from a tight CPU limit"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Analyze a JVM service with -Xmx=32GB and memory request of 60GB.",
+      "expected_output": "Agent applies the JVM alignment rule, compares the heap setting to the container request and observed memory usage, and recommends a request closer to 39GB (32 × 1.2, rounded) unless runtime evidence justifies more headroom.",
+      "assertions": [
+        "Agent detects the gap between Xmx and the current memory request",
+        "Agent recommends a value near 39GB based on Xmx × 1.2",
+        "Agent does not recommend going below the JVM Xmx setting"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Analyze lgdlp-worker on UKS-101 and WUS-101 — they have different CPU requests.",
+      "expected_output": "Agent analyzes each cluster separately, reports the current and recommended settings for each one, and highlights the cross-cluster difference without forcing them to converge automatically.",
+      "assertions": [
+        "Agent performs separate per-cluster analysis for UKS-101 and WUS-101",
+        "Agent includes a comparison table between the two clusters",
+        "Agent flags the configuration difference explicitly",
+        "Agent does not auto-normalize the two clusters to the same value"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Run a Kusto query to check CPU usage.",
+      "expected_output": "Agent should NOT use this skill — a direct Kusto query is out of scope. Agent points the user to the kusto skill instead.",
+      "assertions": [
+        "Agent does not read templates/aks-rightsizing-config.md",
+        "Agent does not invoke Geneva rightsizing analysis for this request",
+        "Agent does not invoke this skill",
+        "Agent suggests or invokes the kusto skill instead"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Analyze lgdlp-worker on WEU-102 (Primary) and NEU-102 (DR).",
+      "expected_output": "Agent identifies WEU-102 as a Primary cluster and NEU-102 as a DR cluster (both non-inline). Performs full rightsizing analysis for WEU-102 (Primary). For NEU-102 (DR), checks whether KEDA is paused — if paused, notes 'DR cluster, KEDA paused' and skips utilization analysis. Does not flag config differences between Primary and DR as drift.",
+      "assertions": [
+        "Agent classifies WEU-102 as Primary and NEU-102 as DR (both non-inline clusters)",
+        "Agent performs full utilization analysis for the Primary cluster",
+        "Agent checks DR cluster paused state before analyzing utilization",
+        "Agent does not flag Primary/DR config differences as drift",
+        "Agent focuses rightsizing recommendations on the Primary cluster"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Analyze a service in the inline-connectors namespace on WEU-108 and NEU-101.",
+      "expected_output": "Agent recognizes that WEU-108 (suffix -108) and NEU-101 are both inline clusters. Both are treated as active-active peers (no Primary/DR distinction). Full rightsizing analysis is performed for both clusters. Config differences between the two are flagged as potential drift since both carry live traffic.",
+      "assertions": [
+        "Agent identifies WEU-108 and NEU-101 as inline clusters (active-active)",
+        "Agent treats both clusters as equal peers, not Primary/DR",
+        "Agent performs full utilization analysis for both clusters",
+        "Agent flags config differences as potential drift (since both are active-active)"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Analyze copernicus-worker JVM memory. Here is the Helm values folder: https://msazure.visualstudio.com/MCAS/_git/javallom?path=/copernicus/Deployment/worker",
+      "expected_output": "Agent reads ALL regional Helm values files in the folder, extracts data_center from each (EUS2, WEU, UKS, WUS, WUS2, etc.), queries jvm.memory.used separately per data_center, and produces per-cluster JVM recommendations. Does NOT query only one region and apply it fleet-wide.",
+      "assertions": [
+        "Agent reads multiple regional Helm values files (not just one)",
+        "Agent extracts separate data_center values per regional file",
+        "Agent queries jvm.memory.used separately for each data_center",
+        "Agent produces per-cluster JVM recommendations (not one fleet-wide value)",
+        "Agent does NOT extrapolate one region's JVM data to all other regions",
+        "Agent recommends Xmx per cluster based on that cluster's avg(jvm.memory.used) × 1.2"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "Analyze JVM memory for a Java service. Here is ONE Helm file (EUS2 only) — it has OTEL enabled.",
+      "expected_output": "Agent detects OTEL is enabled, queries jvm.memory.used for EUS2 only, produces a JVM recommendation for EUS2 only, and explicitly states that other regions need their own Helm files and separate queries before JVM changes can be recommended for them.",
+      "assertions": [
+        "Agent only produces a JVM recommendation for EUS2",
+        "Agent explicitly states other regions cannot be sized from EUS2 data alone",
+        "Agent does NOT apply EUS2 JVM findings to WEU, UKS, WUS, or other clusters"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "Analyze JVM memory for a Java service. Here is the Helm file — it does NOT have OTEL enabled.",
+      "expected_output": "Agent parses the Helm values, does NOT find OTEL_JAVAAGENT_ENABLED: true, and falls back to the manual jcmd-based JVM analysis. Presents jcmd commands for the user to run on pods, explains how to interpret GC logs, and recommends Xmx = peak_live_data × 3-4 with container = Xmx × 1.2.",
+      "assertions": [
+        "Agent checks for OTEL_JAVAAGENT_ENABLED and determines it is absent or false",
+        "Agent does NOT attempt to query otelagent namespace metrics",
+        "Agent falls back to jcmd-based analysis guidance",
+        "Agent provides jcmd and GC log investigation commands"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AKS Rightsizing — {service}</title>
+<script>
+  (() => {
+    const requested = new URLSearchParams(window.location.search).get("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const theme = requested === "dark" || requested === "light"
+      ? requested
+      : prefersDark ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+
+  /* Backgrounds */
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+
+  /* Borders */
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+
+  /* Text */
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+
+  /* Accent */
+  --cp-accent: #b11f4b;
+  --cp-accent-hover: #9a1a41;
+  --cp-accent-soft: rgba(177, 31, 75, 0.08);
+  --cp-accent-fg: #ffffff;
+
+  /* Semantic */
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+
+  /* Effects */
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+  --cp-overlay: rgba(255, 255, 255, 0.8);
+  --cp-panel: rgba(255, 255, 255, 0.86);
+  --cp-panel-strong: rgba(255, 255, 255, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.55);
+  --cp-highlight: rgba(177, 31, 75, 0.12);
+
+  /* Radius tokens */
+  --cp-radius-sm: 4px;
+  --cp-radius-md: 10px;
+  --cp-radius-lg: 16px;
+  --cp-radius-pill: 999px;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #fd8ea1;
+  --cp-accent-hover: #fb7b91;
+  --cp-accent-soft: rgba(253, 142, 161, 0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  --cp-overlay: rgba(41, 41, 41, 0.88);
+  --cp-panel: rgba(41, 41, 41, 0.72);
+  --cp-panel-strong: rgba(41, 41, 41, 0.96);
+  --cp-sheen: rgba(255, 255, 255, 0.04);
+  --cp-highlight: rgba(253, 142, 161, 0.12);
+}
+
+/* ─── Base Reset & Layout ─────────────────────────────────────── */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  line-height: 1.5;
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+code {
+  font-family: Consolas, "Courier New", Courier, monospace;
+  font-size: 0.9em;
+}
+
+/* ─── Typography ──────────────────────────────────────────────── */
+
+h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 4px; }
+h2 { font-size: 1.3rem; font-weight: 600; margin-top: 32px; margin-bottom: 12px; color: var(--cp-accent); }
+h3 { font-size: 1.05rem; font-weight: 600; margin-top: 20px; margin-bottom: 8px; }
+.subtitle { color: var(--cp-text-muted); font-size: 0.95rem; margin-bottom: 24px; }
+
+/* ─── Cards ───────────────────────────────────────────────────── */
+
+.card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: var(--cp-radius-lg);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14);
+}
+
+/* ─── Grid Layouts ────────────────────────────────────────────── */
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+
+@media (max-width: 900px) {
+  .grid-2, .grid-3, .grid-5 { grid-template-columns: 1fr; }
+}
+
+/* ─── Stat Cards ──────────────────────────────────────────────── */
+
+.stat-card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: var(--cp-radius-md);
+  padding: 16px;
+  text-align: center;
+}
+.stat-value { font-size: 1.6rem; font-weight: 700; color: var(--cp-accent); }
+.stat-label { font-size: 0.8rem; color: var(--cp-text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ─── Badges ──────────────────────────────────────────────────── */
+
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: var(--cp-radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.badge-high { background: rgba(220, 38, 38, 0.12); color: var(--cp-danger); }
+.badge-medium { background: rgba(245, 158, 11, 0.12); color: var(--cp-warning); }
+.badge-low { background: rgba(22, 163, 74, 0.12); color: var(--cp-success); }
+.badge-ok { background: var(--cp-surface-soft); color: var(--cp-text-muted); }
+.badge-critical { background: var(--cp-danger); color: white; }
+
+/* ─── Tables ──────────────────────────────────────────────────── */
+
+.table-wrap {
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+th {
+  text-align: left;
+  padding: 10px 12px;
+  background: var(--cp-surface-soft);
+  border-bottom: 2px solid var(--cp-border);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--cp-text-muted);
+}
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--cp-border);
+}
+tr:last-child td { border-bottom: none; }
+.num { text-align: right; font-variant-numeric: tabular-nums; font-family: Consolas, monospace; }
+.highlight-row { background: var(--cp-highlight); }
+
+/* ─── Alerts ──────────────────────────────────────────────────── */
+
+.alert {
+  padding: 14px 18px;
+  border-radius: var(--cp-radius-md);
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+.alert-danger { background: rgba(220, 38, 38, 0.08); border-left: 4px solid var(--cp-danger); }
+.alert-warning { background: rgba(245, 158, 11, 0.08); border-left: 4px solid var(--cp-warning); }
+.alert-success { background: rgba(22, 163, 74, 0.08); border-left: 4px solid var(--cp-success); }
+.alert-info { background: var(--cp-accent-soft); border-left: 4px solid var(--cp-accent); }
+
+/* ─── Utilization Bars ────────────────────────────────────────── */
+
+.bar-container { display: flex; align-items: center; gap: 8px; }
+.bar-bg { flex: 1; height: 20px; background: var(--cp-surface-soft); border-radius: var(--cp-radius-sm); overflow: hidden; position: relative; }
+.bar-fill { height: 100%; border-radius: var(--cp-radius-sm); transition: width 0.5s; }
+.bar-label { font-size: 0.78rem; font-weight: 600; min-width: 48px; text-align: right; }
+
+/* ─── Sticky Navigation ───────────────────────────────────────── */
+
+.section-nav {
+  position: sticky;
+  top: 0;
+  background: var(--cp-panel-strong);
+  backdrop-filter: blur(12px);
+  padding: 10px 0;
+  margin-bottom: 16px;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--cp-border);
+}
+.section-nav a {
+  color: var(--cp-text-muted);
+  text-decoration: none;
+  padding: 4px 12px;
+  border-radius: var(--cp-radius-md);
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.section-nav a:hover { background: var(--cp-accent-soft); color: var(--cp-accent); }
+
+/* ─── Direction Arrows ────────────────────────────────────────── */
+
+.arrow-down { color: var(--cp-success); }
+.arrow-up { color: var(--cp-danger); }
+.unchanged { color: var(--cp-text-muted); }
+
+/* ─── Recommendation Box ──────────────────────────────────────── */
+
+.rec-box {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: var(--cp-radius-md);
+  background: var(--cp-accent-soft);
+  font-weight: 500; font-size: 0.85rem;
+}
+.rec-box .arrow { font-size: 1.1rem; }
+
+/* ─── Footer ──────────────────────────────────────────────────── */
+
+.report-footer {
+  margin-top: 40px;
+  padding: 20px 0;
+  border-top: 1px solid var(--cp-border);
+  color: var(--cp-text-muted);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+/* ─── Accessibility ───────────────────────────────────────────── */
+
+a:focus-visible {
+  outline: 2px solid var(--cp-accent);
+  outline-offset: 2px;
+}
+
+section {
+  scroll-margin-top: 72px;
+}
+
+/* ─── Reduced Motion ──────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; }
+}
+
+/* ─── Print ───────────────────────────────────────────────────── */
+
+@media print {
+  body { max-width: none; padding: 0; background: #fff; color: #000; }
+  .section-nav { display: none; }
+  .card, .stat-card { box-shadow: none; break-inside: avoid; }
+  tr { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<h1>🔬 AKS Rightsizing Report — {service}</h1>
+<p class="subtitle">
+  Service: <code>{service}</code> &nbsp;|&nbsp;
+  K8s Namespace: <code>{namespace}</code> &nbsp;|&nbsp;
+  Data window: 14 days ({start_date} – {end_date}) &nbsp;|&nbsp;
+  Source: Geneva <code>WCDProduction/WCDPRDInfraSystem</code>
+</p>
+
+<nav class="section-nav" aria-label="Report sections">
+  <!-- Generate nav links dynamically — only include links for sections present in the report.
+       Example:
+       <a href="#summary">Summary</a>
+       <a href="#cpu">CPU</a>
+       <a href="#memory">Memory</a>
+       <a href="#replicas">Replicas/KEDA</a>
+       <a href="#drift">Cross-Cluster Drift</a>
+       <a href="#jvm">JVM Deep-Dive</a>        (only if Java service)
+       <a href="#recommendations">Recommendations</a>
+       <a href="#actions">Action Items</a>
+  -->
+</nav>
+
+<main>
+  <!-- Generate report sections here. Each section uses <section id="..."> matching its nav link.
+       See library/html-report-guide.md for section-by-section structure and content guidance. -->
+</main>
+
+<footer class="report-footer">
+  Generated by AKS Rightsizing Skill • Data: Geneva WCDProduction/WCDPRDInfraSystem • Period: {start_date} – {end_date}
+</footer>
+
+</body>
+</html>
