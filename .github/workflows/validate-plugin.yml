@@ -1,0 +1,39 @@
+name: Validate Plugin
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate plugin.json
+        run: |
+          echo "Validating plugin.json..."
+          if ! jq empty plugin.json 2>/dev/null; then
+            echo "ERROR: plugin.json is not valid JSON"
+            exit 1
+          fi
+          for field in name version skills; do
+            if ! jq -e ".$field" plugin.json > /dev/null 2>&1; then
+              echo "ERROR: Missing required field '$field'"
+              exit 1
+            fi
+          done
+          echo "✅ plugin.json is valid"
+
+      - name: Validate skill structure
+        run: |
+          for dir in skills/*/; do
+            skill=$(basename "$dir")
+            if [ ! -f "$dir/SKILL.md" ]; then
+              echo "⚠️  $skill missing SKILL.md"
+            else
+              echo "✅ $skill"
+            fi
+          done
