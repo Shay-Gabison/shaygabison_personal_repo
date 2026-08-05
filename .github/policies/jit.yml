@@ -1,20 +1,15 @@
-# Documentation for JIT policy: https://aka.ms/gim/docs/policy/jit
+name: JIT_Policy
+description: Auto-approve requests from users with Maintain role
 
-# metadata
-id: id
-name: JIT_Access
-description: Policy for admin JIT for repos in this org
-
-# filters
 resource: repository
 
-# primitive configuration
 configuration:
     jitAccess:
         enabled: true
-        maxHours: 24
+        maxHours: 2
         approvers:
-            role: write
+            role:
+            users:
         requestors:
-            role: write
+            role: maintain
             users:
