@@ -1,6 +1,6 @@
 ---
 name: ask-peer-feedback
-description: "Create a focused Outlook draft asking a peer for professional performance and growth feedback—not a code, document, PR, or artifact review. Grounds the request in the shared work, why this peer was selected, what the peer directly observed, and what the requester wants to learn. Use when the user says 'ask a peer for feedback', 'request feedback from a colleague', 'draft a feedback email', 'get feedback before Connect', or 'ask for feedback on my work'. After drafting, asks whether to notify the peer in Teams."
+description: "Create a focused Outlook draft asking a peer for professional performance and growth feedback—not a code, document, PR, or artifact review. Grounds the request in shared work and direct observations, and calibrates prompts to the requester's required career level. Use when the user says 'ask a peer for feedback', 'request feedback from a colleague', 'draft a feedback email', 'get feedback before Connect', or 'ask for feedback on my work'. After drafting, asks whether to notify the peer in Teams."
 domain: productivity
 confidence: high
 ---
@@ -47,6 +47,7 @@ artifact should be reviewed. Ask about the shared work and the peer's observatio
 The minimum context needed to draft is:
 
 - **Peer identity**
+- **Current career level or role scope**
 - **Shared work**
 - **At least one credible observation area**
 
@@ -61,11 +62,11 @@ Use these defaults unless the user says otherwise:
 - **Feedback goal:** understand impact, strengths, and where to improve or grow
 - **Tone:** warm and concise
 - **Growth prompt:** "Are there any areas where I could improve or grow further?"
-- **Career direction:** omit
 
 Do not ask separately for "why this peer," "areas worked together," feedback
-goal, career direction, or tone when they can be inferred or safely defaulted.
-Do not ask the user to confirm your inferred perspective before drafting.
+goal, or tone when they can be inferred or safely defaulted. Career level is the
+exception: it must be explicitly provided and must not be inferred. Do not ask
+the user to confirm your inferred perspective before drafting.
 
 If required context is still missing, use `ask_user` exactly once with only the
 missing fields. Prefer one compact free-text context field over a questionnaire:
@@ -79,6 +80,11 @@ missing fields. Prefer one compact free-text context field over a questionnaire:
         "type": "string",
         "title": "Peer alias or email",
         "description": "Include only if it was not already provided."
+      },
+      "careerLevel": {
+        "type": "string",
+        "title": "Current career level or role scope",
+        "description": "For example: Software Engineer II, Senior, Principal, level number, or the scope you currently own. Include only if it was not already provided."
       },
       "context": {
         "type": "string",
@@ -110,8 +116,8 @@ Choose two or three prompts that match what the peer directly observed. Prefer:
 - **Leadership and growth** — creating clarity, generating energy, mentoring, driving success
 - **Engineering excellence** — maintainability, reviews, operational health, efficiency, cost
 
-If the user provides a career level or growth direction, align the prompts to the
-appropriate scope without mentioning confidential rubric language in the email:
+Use the required career level to align the prompts to the appropriate scope
+without mentioning the level or confidential rubric language in the email:
 
 - **Early-career scope:** independence, quality, learning, reliable delivery, collaboration
 - **Feature/component leadership:** end-to-end ownership, design, ambiguity, operational health
@@ -119,6 +125,8 @@ appropriate scope without mentioning confidential rubric language in the email:
 - **Product/organization leadership:** strategy, broad alignment, durable systems, business outcomes
 
 Never ask a peer to assess areas they could not reasonably have observed.
+Career level calibrates the scope of the questions; it is not itself disclosed
+or presented as something the peer should evaluate.
 
 ### 3. Draft the Email
 
@@ -215,10 +223,10 @@ Do not send an urgent or high-importance Teams message.
 
 These gates override any pressure to complete the workflow in one step:
 
-1. **Insufficient context:** Ask only when peer identity, shared work, or any
-   credible observation area cannot be inferred. Ask once for only what is
-   missing. Feedback goal, tone, and career direction are optional and have
-   defaults.
+1. **Insufficient context:** Ask only when peer identity, current career level,
+   shared work, or any credible observation area is missing. Ask once for only
+   what is missing. Career level must be supplied explicitly; feedback goal and
+   tone have defaults.
 2. **Email boundary:** Create an Outlook draft only. Never send the feedback request.
 3. **Teams boundary:** After creating the draft, ask a yes/no opt-in question. Do
    not replace the opt-in with a proposed Teams message. The question must be
@@ -238,6 +246,7 @@ Confirm all of the following:
 - The email identifies the shared work
 - The reason this peer is a credible feedback source is clear
 - Every question maps to something the peer directly observed
+- The question scope is calibrated to the user's stated career level
 - The request asks for specific examples
 - The wording invites both strengths and growth feedback
 - The email is concise and does not feel like a performance-review form
@@ -261,9 +270,9 @@ cross-team clarity, usefulness, and improvement opportunities.
 
 **Input:** "Ask Alex for feedback."
 
-**Required response:** Ask for the project or interaction, why Alex is the right
-person, what Alex observed, and what the user wants to learn. Do not draft a
-generic email yet.
+**Required response:** Ask for the user's current career level, the project or
+interaction, why Alex is the right person, what Alex observed, and what the user
+wants to learn. Do not draft a generic email yet.
 
 ## Source Basis
 
