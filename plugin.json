@@ -1,12 +1,21 @@
 {
   "name": "shaygabison-personal-skills",
   "description": "Personal Copilot CLI skills collection — ADX rightsizing, AKS rightsizing, ConfigGen, EV2, Geneva, Kusto, demo building, document generation, and more.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": {
     "name": "Shay Gabison",
     "email": "shaygabison@microsoft.com"
   },
   "license": "MIT",
-  "keywords": ["copilot-cli", "skills", "personal", "azure", "mda"],
-  "skills": ["skills/", "squad-skills/"]
+  "keywords": [
+    "copilot-cli",
+    "skills",
+    "personal",
+    "azure",
+    "mda"
+  ],
+  "skills": [
+    "skills/",
+    "squad-skills/"
+  ]
 }

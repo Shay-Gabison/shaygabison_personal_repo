@@ -1,6 +1,6 @@
 ---
 name: create-draft-email
-description: "Create beautiful, Outlook-safe HTML draft emails for announcements, how-to guides, and team communications. Use when the user asks to draft an email, create an announcement, or prepare a broadcast message. Covers Identity Security Platform Axon visual style (navy hero + white card), Outlook HTML rules, checkmark-entity bugs, attachment upload workflow, and iterative design refinement."
+description: "Create beautiful, responsive, Outlook-safe HTML draft emails for announcements, how-to guides, and team communications. Use when the user asks to draft an email, create an announcement, or prepare a broadcast message. Covers Identity Security Platform Axon visual style (navy hero + wide dynamic card), Outlook HTML rules, checkmark-entity bugs, attachment upload workflow, and iterative design refinement."
 domain: "communication"
 confidence: "adopted"
 ---
@@ -22,7 +22,7 @@ The user has iterated through MANY palettes. This is the **approved** layout —
 
 **Structure (table-based, Outlook-safe):**
 - Outer table: `#f5f6f8` background, full width
-- Inner card: **fluid up to 680px** (`width="100%"` + `style="max-width:680px"`), centered, white `#ffffff`, `border-radius: 12px`, subtle box-shadow. The card MUST shrink with the viewport so content is never trimmed in narrow Outlook reading panes or small windows.
+- Inner card: **dynamic 80% width** (`width="80%"` + `style="width:80%;max-width:1200px"`), centered, white `#ffffff`, `border-radius: 12px`, subtle box-shadow. This deliberately uses a percentage `width` attribute because Outlook desktop may ignore CSS `max-width`. The card should occupy most of the reading pane instead of looking like a narrow half-width column, while still shrinking with the viewport.
 - Hero header: **navy `#1e3a8a`** solid background, white text, 🚀 emoji, `padding: 32px 40px` (drop to `24px 20px` on small screens via inline media query if needed)
 - Body padding: **32-40px** (use `padding:24px 20px` minimum on small screens)
 - Images: always set `style="max-width:100%;height:auto;display:block;"` so embedded screenshots scale instead of forcing horizontal scroll
@@ -48,7 +48,7 @@ Outlook **breaks** modern CSS. Follow these rules or layout falls apart:
    - … (U+2026) instead of `&hellip;`
    - • (U+2022) instead of `&bull;`
 5. Use `<br>` for line breaks, not `<p>` margins (Outlook adds unpredictable spacing).
-6. Set widths fluidly: use `width="100%"` attribute on the inner table AND `style="width:100%;max-width:680px"` so the card fills small viewports and caps at 680px on wide ones. **Do NOT use a fixed pixel width** — fixed widths cause content to be clipped in narrow Outlook reading panes.
+6. Set the main card width dynamically: use `width="80%"` on the inner table AND `style="width:80%;max-width:1200px"` so Outlook uses the percentage even when it ignores `max-width`. This should be the default for desktop announcements and how-to emails. **Do NOT use a fixed pixel width or cap the card around 600-700px** — that produces the narrow half-email layout and can waste most of the reading pane.
 7. For embedded images: always include `style="max-width:100%;height:auto;display:block;"`. Avoid hard-coded `width=` / `height=` attributes that exceed the card width.
 
 ## Workflow
@@ -70,7 +70,7 @@ Write to `/tmp/mail_body.html` first, then pass as `body` param. The body can be
 <html><body style="margin:0;padding:0;background:#f5f6f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f5f6f8;padding:32px 0;">
   <tr><td align="center">
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;max-width:680px;background:#ffffff;border-radius:12px;box-shadow:0 2px 8px rgba(15,23,42,0.08);overflow:hidden;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="80%" style="width:80%;max-width:1200px;background:#ffffff;border-radius:12px;box-shadow:0 2px 8px rgba(15,23,42,0.08);overflow:hidden;">
       <!-- HERO -->
       <tr><td style="background:#1e3a8a;padding:32px 40px;color:#ffffff;">
         <div style="font-size:13px;letter-spacing:2px;text-transform:uppercase;opacity:0.85;">🚀 Announcement</div>
