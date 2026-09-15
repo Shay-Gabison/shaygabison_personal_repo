@@ -29,14 +29,21 @@ jobs:
 
       - name: Validate skill structure
         run: |
-          for root in skills squad-skills; do
-            [ -d "$root" ] || continue
-            for dir in "$root"/*/; do
-              skill=$(basename "$dir")
-              if [ ! -f "$dir/SKILL.md" ]; then
-                echo "ERROR: $root/$skill is missing SKILL.md"
-                exit 1
-              fi
-              echo "Validated $root/$skill"
-            done
-          done
+          while IFS= read -r configured_root; do
+            root="${configured_root%/}"
+            if [ ! -d "$root" ]; then
+              echo "ERROR: Configured skill root '$root' does not exist"
+              exit 1
+            fi
+
+            found=false
+            while IFS= read -r skill_file; do
+              found=true
+              echo "Validated ${skill_file%/SKILL.md}"
+            done < <(find "$root" -mindepth 2 -maxdepth 2 -type f -name SKILL.md | sort)
+
+            if [ "$found" = false ]; then
+              echo "ERROR: No skills found under configured root '$root'"
+              exit 1
+            fi
+          done < <(jq -r '.skills[]' plugin.json)
