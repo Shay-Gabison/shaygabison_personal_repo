@@ -29,11 +29,14 @@ jobs:
 
       - name: Validate skill structure
         run: |
-          for dir in skills/*/; do
-            skill=$(basename "$dir")
-            if [ ! -f "$dir/SKILL.md" ]; then
-              echo "⚠️  $skill missing SKILL.md"
-            else
-              echo "✅ $skill"
-            fi
+          for root in skills squad-skills; do
+            [ -d "$root" ] || continue
+            for dir in "$root"/*/; do
+              skill=$(basename "$dir")
+              if [ ! -f "$dir/SKILL.md" ]; then
+                echo "ERROR: $root/$skill is missing SKILL.md"
+                exit 1
+              fi
+              echo "Validated $root/$skill"
+            done
           done
