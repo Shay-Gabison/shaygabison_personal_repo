@@ -1,0 +1,31 @@
+{
+  "skill": "loop-component-builder",
+  "cases": [
+    {
+      "prompt": "Create a TypeScript Loop component where teammates can update a deployment status from Teams and Outlook.",
+      "expected": [
+        "Uses an Adaptive Card-based Loop component",
+        "Scaffolds a Teams message extension with link unfurling",
+        "Uses metadata.webUrl, refresh, and Action.Execute",
+        "Adds persistence, authorization, optimistic concurrency, and tests"
+      ]
+    },
+    {
+      "prompt": "Convert this existing Teams Adaptive Card into a portable Loop component.",
+      "expected": [
+        "Inspects the existing repository and manifest",
+        "Adds a stable canonical URL and metadata.webUrl",
+        "Adds refresh and inline actions without duplicating headers",
+        "Preserves repository conventions and validates the existing build"
+      ]
+    },
+    {
+      "prompt": "Use Graph API to create a native Loop page and put my custom component in it.",
+      "expected": [
+        "Does not invent a Loop workspace or page creation API",
+        "Explains the supported Adaptive Card-based component boundary",
+        "Offers to build the component without claiming native page creation"
+      ]
+    }
+  ]
+}
