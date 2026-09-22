@@ -1,71 +1,86 @@
-# Loop Browser Fallback Playbook
+# Sub-Minute Loop Browser Playbook
 
-Use this only after the user explicitly approves browser automation and no
-official connected Loop creation operation is available.
+Fast mode creates a real Loop page with complete, visibly structured plain text.
+It intentionally avoids Loop's dynamic `/` insert menu and avoids reload.
 
-The Loop UI changes over time. Use current accessibility snapshots and visible
-labels instead of coordinates or a single brittle automation script.
+## Consolidated Fast Script
 
-## Efficient Creation Sequence
+Prepare `bodyText` before invoking the script:
 
-1. Navigate to `https://loop.cloud.microsoft/`.
-2. Reuse the signed-in session.
-3. Select **My workspace**.
-4. Click **Create new** and select **Page**.
-5. Enter the title:
-   - Click the title textbox.
-   - Select the existing `Untitled` text.
-   - Use direct text insertion.
-   - Fall back to sequential typing only if direct insertion does not persist.
-6. Click the canvas and type `/`.
-7. Select the real semantic structure:
-   - Checklist
-   - Table
-   - Bulleted list
-   - Numbered list
-8. Insert all content with direct text insertion and Enter between items.
-9. Wait briefly for autosave.
-10. Reload once.
-11. Verify the title, first and last content items, and semantic roles.
-12. Return the current private `loop.cloud.microsoft/p/...` URL.
+- Checklist: `☐ Item`
+- Bullets: `• Item`
+- Numbered list: `1. Item`
+- Table: tab-separated rows
 
-Do not take a full snapshot after every action. Use `browser_find` for the next
-known label and use a full snapshot only when the expected control is missing.
+```js
+async (page) => {
+  const startedAt = Date.now();
+  const title = "Example title";
+  const bodyText = [
+    "☐ First item",
+    "☐ Second item",
+    "☐ Last item",
+  ].join("\n");
+  const firstExpected = "First item";
+  const lastExpected = "Last item";
 
-Do not open **Share** or **Copy as Loop component** to obtain a URL. Those dialogs
-can produce a broader organization-edit link.
+  if (/login|signin/i.test(page.url())) {
+    return { needsSignIn: true };
+  }
 
-## Fast Table Input
+  const myWorkspace = page.getByRole("tab", { name: "My workspace" });
+  if (await myWorkspace.isVisible().catch(() => false)) {
+    await myWorkspace.click();
+  }
 
-Prepare data as tab-separated values:
+  await page.getByTestId("WorkspaceNavigationViewAddPageButton").click();
+  await page.getByTestId("AddPageButtonMenuNewPage").click();
 
-```text
-Name	Owner	Status
-Service A	alice	Ready
-Service B	bob	In progress
+  const titleBox = page.getByRole("textbox", { name: "Title" });
+  await titleBox.waitFor({ state: "visible", timeout: 8000 });
+  await titleBox.click();
+  await page.keyboard.press("Meta+A");
+  await titleBox.pressSequentially(title, { delay: 3 });
+
+  const canvas = page.getByRole("textbox", { name: "Canvas" });
+  await canvas.click();
+  await canvas.pressSequentially(bodyText, { delay: 1 });
+
+  await page.waitForTimeout(1800);
+
+  const savedTitle = await titleBox.innerText();
+  const savedBody = await canvas.innerText();
+
+  if (
+    savedTitle !== title ||
+    !savedBody.includes(firstExpected) ||
+    !savedBody.includes(lastExpected)
+  ) {
+    throw new Error("Loop verification failed");
+  }
+
+  return {
+    title: savedTitle,
+    url: page.url(),
+    itemCount: bodyText.split("\n").length,
+    elapsedMs: Date.now() - startedAt,
+  };
+}
 ```
 
-Insert a Loop table, focus the first cell, and paste the TSV block. Verify the
-editor expanded the table and retained the final row. If bulk paste fails, undo
-once and populate rows through semantic controls.
+Do not verify the title with `page.title()`. Loop's browser tab title can lag
+behind the saved page title.
 
-## Verification
+## Semantic Mode
 
-- Title matches exactly.
-- First and last rows/items are present.
-- Item count matches when practical.
-- Checklists expose checkbox roles.
-- Tables expose row and cell roles.
-- Content remains after one reload.
-- Current private Loop page URL is captured.
+Use semantic mode only when the user explicitly requires native Loop controls.
+It may exceed one minute.
 
-## Common Blockers
+1. Click the Canvas.
+2. Clear partial content.
+3. Type `/` through a direct sequential browser typing operation.
+4. Locate and select Checklist, Table, or another native block.
+5. Populate and verify semantic roles.
 
-- **Sign-in required:** pause for the user to sign in, then resume.
-- **No create permission:** switch to a writable personal workspace.
-- **Direct insertion ignored:** use sequential typing for that field only.
-- **Dynamic insert menu timeout:** use targeted `/` typing, `browser_find`, then
-  click the current semantic menu item.
-- **Share dialog opened accidentally:** close it without copying or changing
-  permissions.
+Never open **Share** or **Copy as Loop component** just to obtain a URL.
 

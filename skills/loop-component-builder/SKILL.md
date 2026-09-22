@@ -1,6 +1,6 @@
 ---
 name: loop-component-builder
-description: "Create a real Microsoft Loop page/component from supplied content. Prefer an official connected Loop or Loop Web Service operation and avoid browser automation. Use Playwright only as an explicitly approved fallback when no native creation operation is exposed. Do not build a Teams app, Adaptive Card project, SDK scaffold, or source-code prototype unless the user explicitly asks for developer integration."
+description: "Create a real Microsoft Loop page/component from supplied content in under one minute using the existing signed-in Loop browser session. Use when the user says create a Loop, build a Loop component, put this in Loop, or turn content into a collaborative table/checklist/tracker. Skip API research and SDK scaffolding; create the visible artifact immediately and return its private Loop URL."
 domain: productivity
 confidence: high
 ---
@@ -8,9 +8,8 @@ confidence: high
 # One-Minute Loop Component Builder
 
 Create a **real, visible Microsoft Loop artifact** in the user's Microsoft 365
-tenant. Prefer a native service or MCP operation over browser automation. The
-normal outcome is a working Loop page with the requested table, checklist,
-tracker, notes, or structured content plus its private page link.
+tenant in under one minute. Use the existing signed-in Loop browser session and
+return the private page link.
 
 ## Primary Rule
 
@@ -28,38 +27,61 @@ For a normal request, do not:
 
 Those are a different developer scenario and do not satisfy "create a Loop."
 
-## Backend Selection
+## Sub-Minute Fast Path
 
-Target completion in about one minute.
+Target completion in **45 seconds**, with a hard goal of less than 60 seconds.
 
 1. Extract the title, content, rows, columns, and desired format from the user's
    request or attachment.
 2. If the content is sufficient, do not ask questions.
-3. Check connected tools for an officially exposed Loop creation operation.
-4. Prefer operations equivalent to:
-   - `create-page-in-workspace`
-   - `modify-page`
-5. If both operations are available, create and populate the page directly,
-   verify the returned content, and return the page URL.
-6. If no native operation is available, do not silently start Playwright. Use
-   `ask_user` once for approval to use the signed-in Loop web app as a fallback.
-7. If browser fallback is declined, stop with the exact missing capability.
+3. Navigate directly to `https://loop.cloud.microsoft/`.
+4. Run the consolidated fast script in `references/browser-playbook.md`.
+5. Return the page title, item count, private URL, and measured elapsed time.
 
-Use `references/non-browser-options.md` for capability detection.
+Do not search Graph, WorkIQ, Teams, documentation, APIs, packages, or MCP
+capabilities during normal creation. Those checks already established that the
+connected toolset has no native Loop creator and only add latency.
 
-### Non-Browser Guardrails
+### Performance Budget
 
-- Microsoft Graph does not currently expose supported Loop page/component
-  creation in the connected toolset.
-- WorkIQ entity-path discovery must return an actual writable Loop path before
-  using `create_entity`; do not invent one.
-- Teams messaging can embed an existing `.loop` URL but cannot create the
-  underlying Loop file.
-- SharePoint Embedded and Fluid Framework create application-owned
-  collaboration experiences, not a page in the user's Loop workspace.
-- Do not call undocumented internal REST endpoints, scrape browser tokens,
-  reconstruct policy-restricted documentation, or upload fabricated `.loop`
-  file contents.
+- Maximum normal browser calls: **2**
+  1. Navigate to Loop
+  2. Run the consolidated creation and verification script
+- No preliminary snapshots.
+- No per-action commentary.
+- No Share or Copy-as-component dialog.
+- No full-page screenshot.
+- No SDK/package/API research.
+- No reload in fast mode.
+- No slash menu in fast mode.
+
+The consolidated script must use:
+
+- Stable role/test-id selectors
+- `Meta+A` followed by `pressSequentially()` for the title
+- A canvas click immediately after entering the title to commit/blur it
+- One prepared plain-text block for all body content
+- `canvas.pressSequentially()` with a very small delay for reliable editor input
+- A short autosave wait
+- Verification through the Title and Canvas textboxes
+
+Format fast-mode content visibly:
+
+- Checklist: `☐ Item`
+- Bullets: `• Item`
+- Numbered list: `1. Item`
+- Table: tab-separated rows or aligned plain-text columns
+
+This is still a real Loop page. It intentionally avoids native semantic
+checkbox/table blocks because Loop's dynamic insert menu is not reliable enough
+for a guaranteed sub-minute run.
+
+If the user explicitly requires native interactive checkboxes, assignments,
+dates, or a semantic Loop table, explain that semantic mode may exceed one
+minute and use the slower insert-menu workflow only after confirmation.
+
+If the consolidated script fails because the UI changed, take one snapshot and
+finish with targeted operations. Do not restart the workflow.
 
 ## When One Question Is Necessary
 
@@ -99,22 +121,15 @@ For tables:
 - Use concise column names.
 - Do not add IDs or metadata the user did not request.
 
-Use real Loop structures, not visual imitations:
+In fast mode, optimize for a complete visible artifact rather than native
+interactive controls. Preserve every row/item and use clear plain-text markers.
 
-- Insert **Checklist** from Loop's `/` menu instead of typing checkbox glyphs.
-- Insert **Table** from Loop's `/` menu instead of pasting pipe-delimited text.
-- Insert **Bulleted list** or **Numbered list** instead of typing bullet
-  characters.
-- Verify the accessibility snapshot exposes checkboxes, list items, or table
-  cells matching the requested structure.
+## Browser Workflow
 
-## Browser Fallback Workflow
-
-Use this only after the user explicitly approves browser automation. Follow
-`references/browser-playbook.md`. Prefer semantic UI operations and snapshots
-over brittle coordinates. Do not use `browser_run_code_unsafe` as the default:
-Loop's dynamic insert menu can make a single large script slower and less
-reliable than a few targeted operations.
+Follow `references/browser-playbook.md`. Use the consolidated operation. Its
+script is fixed and reviewable: it interacts only with the current Loop page,
+does not inspect tokens/cookies, and does not access the filesystem or execute
+shell commands.
 
 1. Navigate to `https://loop.cloud.microsoft/`.
 2. Wait for the signed-in home page.
@@ -160,7 +175,7 @@ The task is complete only when:
 - Its title matches the request.
 - The expected content is present.
 - For a table, both the first and last expected rows are present.
-- Loop reports the page saved, or the content remains after a reload.
+- The autosave wait completes without a navigation warning.
 - The current private `loop.cloud.microsoft` page URL is captured.
 
 If a UI limitation blocks one formatting feature, create the closest useful Loop

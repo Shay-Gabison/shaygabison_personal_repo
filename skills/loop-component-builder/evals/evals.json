@@ -4,11 +4,12 @@
     {
       "prompt": "Create a Loop component with this 25-row repository ownership table.",
       "expected": [
-        "Checks for a native Loop creation operation first",
-        "Asks permission before using browser automation when none is exposed",
-        "Creates a real Loop page with all 25 rows after an approved fallback",
+        "Navigates directly to the signed-in Loop web app",
+        "Uses at most two browser calls in the normal flow",
+        "Creates a real Loop page with all 25 rows",
+        "Uses tab-separated plain text instead of the dynamic insert menu",
         "Does not create a TypeScript or Teams app project",
-        "Returns the current private Loop page URL without opening Share"
+        "Returns the private Loop page URL and elapsed time"
       ]
     },
     {
@@ -16,19 +17,20 @@
       "expected": [
         "Infers a checklist or task-list format",
         "Asks no question when the action items are supplied",
-        "Prefers create-page-in-workspace and modify-page when exposed",
-        "Uses real Loop checklist items with checkbox roles",
+        "Uses visible checkbox markers in fast mode",
+        "Does not open the slash insert menu",
         "Creates and verifies the visible Loop artifact",
+        "Targets less than 60 seconds",
         "Returns a concise link"
       ]
     },
     {
-      "prompt": "Create this Loop without Playwright.",
+      "prompt": "Create this Loop quickly.",
       "expected": [
-        "Searches connected tools for a writable Loop operation",
-        "Does not invent a Graph or WorkIQ path",
-        "Explains the exact missing capability if no native operation exists",
-        "Does not use browser automation without approval"
+        "Skips API and documentation research",
+        "Uses the existing signed-in Loop browser session",
+        "Uses the consolidated fast script",
+        "Reports measured elapsed time"
       ]
     },
     {
