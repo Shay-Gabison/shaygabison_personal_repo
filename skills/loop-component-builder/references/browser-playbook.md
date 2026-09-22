@@ -1,25 +1,39 @@
-# Loop Web Creation Playbook
+# Loop Browser Fallback Playbook
 
-Use this only as an operational checklist. The Loop UI changes over time, so use
-current accessibility snapshots and visible labels rather than fixed selectors.
+Use this only after the user explicitly approves browser automation and no
+official connected Loop creation operation is available.
 
-## Minimal Creation Sequence
+The Loop UI changes over time. Use current accessibility snapshots and visible
+labels instead of coordinates or a single brittle automation script.
 
-1. Open `https://loop.cloud.microsoft/`.
-2. Confirm the expected Microsoft 365 account is signed in.
-3. Select **Create new** or the current equivalent.
-4. Create a page in the personal/default workspace.
-5. Enter the title.
-6. Type `/` and select the real Loop structure: Checklist, Table, Bulleted list,
-   Numbered list, or another requested type.
-7. Insert content by pasting or typing a prepared block.
-8. Wait for autosave.
-9. Verify content and semantic roles.
-10. Capture the current `loop.cloud.microsoft/p/...` browser URL.
+## Efficient Creation Sequence
 
-Do not open **Share** or **Copy as Loop component** to get the URL unless the
-user explicitly asked to share. Those dialogs can produce an organization-wide
-edit link.
+1. Navigate to `https://loop.cloud.microsoft/`.
+2. Reuse the signed-in session.
+3. Select **My workspace**.
+4. Click **Create new** and select **Page**.
+5. Enter the title:
+   - Click the title textbox.
+   - Select the existing `Untitled` text.
+   - Use direct text insertion.
+   - Fall back to sequential typing only if direct insertion does not persist.
+6. Click the canvas and type `/`.
+7. Select the real semantic structure:
+   - Checklist
+   - Table
+   - Bulleted list
+   - Numbered list
+8. Insert all content with direct text insertion and Enter between items.
+9. Wait briefly for autosave.
+10. Reload once.
+11. Verify the title, first and last content items, and semantic roles.
+12. Return the current private `loop.cloud.microsoft/p/...` URL.
+
+Do not take a full snapshot after every action. Use `browser_find` for the next
+known label and use a full snapshot only when the expected control is missing.
+
+Do not open **Share** or **Copy as Loop component** to obtain a URL. Those dialogs
+can produce a broader organization-edit link.
 
 ## Fast Table Input
 
@@ -31,31 +45,27 @@ Service A	alice	Ready
 Service B	bob	In progress
 ```
 
-When supported by the current editor:
-
-1. Insert a table with the required column count.
-2. Focus the first cell.
-3. Paste the full TSV block.
-4. Verify the editor expanded the table and retained the final row.
-
-If bulk paste does not expand correctly, undo once and populate rows through the
-editor's semantic controls. Do not abandon the Loop artifact.
+Insert a Loop table, focus the first cell, and paste the TSV block. Verify the
+editor expanded the table and retained the final row. If bulk paste fails, undo
+once and populate rows through semantic controls.
 
 ## Verification
 
-- Confirm title text.
-- Confirm expected column headers.
-- Confirm first and last rows/items.
-- Confirm total count when practical.
-- Confirm checklists expose real checkbox roles and tables expose rows/cells.
-- Reload only if needed to verify autosave.
-- Capture the current private `loop.cloud.microsoft` link.
+- Title matches exactly.
+- First and last rows/items are present.
+- Item count matches when practical.
+- Checklists expose checkbox roles.
+- Tables expose row and cell roles.
+- Content remains after one reload.
+- Current private Loop page URL is captured.
 
 ## Common Blockers
 
 - **Sign-in required:** pause for the user to sign in, then resume.
 - **No create permission:** switch to a writable personal workspace.
-- **Clipboard permission:** use direct browser typing/fill operations.
-- **Editor changed:** inspect a fresh browser snapshot and target visible labels.
+- **Direct insertion ignored:** use sequential typing for that field only.
+- **Dynamic insert menu timeout:** use targeted `/` typing, `browser_find`, then
+  click the current semantic menu item.
 - **Share dialog opened accidentally:** close it without copying or changing
-  permissions; use the current browser URL.
+  permissions.
+

@@ -1,6 +1,6 @@
 ---
 name: loop-component-builder
-description: "Create a real Microsoft Loop page/component in about one minute using the signed-in Loop web app. Use when the user says create a Loop, build a Loop component, put this in Loop, make a collaborative table/checklist/status tracker, or turn pasted content into a Loop page. Creates the visible Loop artifact and returns its link. Do not build a Teams app, Adaptive Card project, SDK scaffold, or source-code prototype unless the user explicitly asks for developer integration."
+description: "Create a real Microsoft Loop page/component from supplied content. Prefer an official connected Loop or Loop Web Service operation and avoid browser automation. Use Playwright only as an explicitly approved fallback when no native creation operation is exposed. Do not build a Teams app, Adaptive Card project, SDK scaffold, or source-code prototype unless the user explicitly asks for developer integration."
 domain: productivity
 confidence: high
 ---
@@ -8,9 +8,9 @@ confidence: high
 # One-Minute Loop Component Builder
 
 Create a **real, visible Microsoft Loop artifact** in the user's Microsoft 365
-tenant using the Loop web app. The normal outcome is a working Loop page with the
-requested table, checklist, tracker, notes, or structured content plus its share
-link.
+tenant. Prefer a native service or MCP operation over browser automation. The
+normal outcome is a working Loop page with the requested table, checklist,
+tracker, notes, or structured content plus its private page link.
 
 ## Primary Rule
 
@@ -28,23 +28,38 @@ For a normal request, do not:
 
 Those are a different developer scenario and do not satisfy "create a Loop."
 
-## Fast Path
+## Backend Selection
 
 Target completion in about one minute.
 
 1. Extract the title, content, rows, columns, and desired format from the user's
    request or attachment.
 2. If the content is sufficient, do not ask questions.
-3. Open the Microsoft Loop web app with the connected browser/Playwright tool.
-4. Use the user's existing signed-in Microsoft 365 session.
-5. Create a new Loop page in the default personal workspace or the most recently
-   used writable workspace.
-6. Add the requested content using Loop's real semantic content type.
-7. Verify the title and content are visible.
-8. Capture the current `loop.cloud.microsoft` page URL and return it.
+3. Check connected tools for an officially exposed Loop creation operation.
+4. Prefer operations equivalent to:
+   - `create-page-in-workspace`
+   - `modify-page`
+5. If both operations are available, create and populate the page directly,
+   verify the returned content, and return the page URL.
+6. If no native operation is available, do not silently start Playwright. Use
+   `ask_user` once for approval to use the signed-in Loop web app as a fallback.
+7. If browser fallback is declined, stop with the exact missing capability.
 
-Do not spend time looking for an API or MCP when browser automation can create
-the requested artifact directly.
+Use `references/non-browser-options.md` for capability detection.
+
+### Non-Browser Guardrails
+
+- Microsoft Graph does not currently expose supported Loop page/component
+  creation in the connected toolset.
+- WorkIQ entity-path discovery must return an actual writable Loop path before
+  using `create_entity`; do not invent one.
+- Teams messaging can embed an existing `.loop` URL but cannot create the
+  underlying Loop file.
+- SharePoint Embedded and Fluid Framework create application-owned
+  collaboration experiences, not a page in the user's Loop workspace.
+- Do not call undocumented internal REST endpoints, scrape browser tokens,
+  reconstruct policy-restricted documentation, or upload fabricated `.loop`
+  file contents.
 
 ## When One Question Is Necessary
 
@@ -93,10 +108,13 @@ Use real Loop structures, not visual imitations:
 - Verify the accessibility snapshot exposes checkboxes, list items, or table
   cells matching the requested structure.
 
-## Browser Workflow
+## Browser Fallback Workflow
 
-Use the connected Playwright/browser capability. Prefer semantic UI operations
-and snapshots over brittle coordinate clicks.
+Use this only after the user explicitly approves browser automation. Follow
+`references/browser-playbook.md`. Prefer semantic UI operations and snapshots
+over brittle coordinates. Do not use `browser_run_code_unsafe` as the default:
+Loop's dynamic insert menu can make a single large script slower and less
+reliable than a few targeted operations.
 
 1. Navigate to `https://loop.cloud.microsoft/`.
 2. Wait for the signed-in home page.

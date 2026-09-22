@@ -4,8 +4,9 @@
     {
       "prompt": "Create a Loop component with this 25-row repository ownership table.",
       "expected": [
-        "Opens the signed-in Microsoft Loop web app",
-        "Creates a real Loop page with all 25 rows",
+        "Checks for a native Loop creation operation first",
+        "Asks permission before using browser automation when none is exposed",
+        "Creates a real Loop page with all 25 rows after an approved fallback",
         "Does not create a TypeScript or Teams app project",
         "Returns the current private Loop page URL without opening Share"
       ]
@@ -15,9 +16,19 @@
       "expected": [
         "Infers a checklist or task-list format",
         "Asks no question when the action items are supplied",
+        "Prefers create-page-in-workspace and modify-page when exposed",
         "Uses real Loop checklist items with checkbox roles",
         "Creates and verifies the visible Loop artifact",
         "Returns a concise link"
+      ]
+    },
+    {
+      "prompt": "Create this Loop without Playwright.",
+      "expected": [
+        "Searches connected tools for a writable Loop operation",
+        "Does not invent a Graph or WorkIQ path",
+        "Explains the exact missing capability if no native operation exists",
+        "Does not use browser automation without approval"
       ]
     },
     {
