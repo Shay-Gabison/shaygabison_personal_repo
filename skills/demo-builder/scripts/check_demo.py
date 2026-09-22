@@ -15,9 +15,13 @@ usage:
 
 Requires: ffmpeg, tesseract on PATH; Pillow + numpy in the venv.
 """
-import sys, os, json, subprocess, tempfile, glob, re, math
+import sys, os, json, subprocess, tempfile, glob, re, math, shutil
 import numpy as np
 from PIL import Image
+
+# OCR (tesseract) is OPTIONAL — it powers bad-page detection + keyword checks. When it's
+# not installed (common on locked-down machines) we skip those checks instead of crashing.
+HAS_OCR = shutil.which("tesseract") is not None
 
 BAD_PATTERNS = [
     r"loading identity", r"sign in", r"sign-in", r"enter.*password", r"stale request",
@@ -66,8 +70,13 @@ def motion(g_prev, g):
     return float(d.mean())
 
 def ocr(path):
-    r = run(["tesseract",path,"stdout","--psm","6"])
-    return r.stdout.lower()
+    if not HAS_OCR:
+        return ""
+    try:
+        r = run(["tesseract",path,"stdout","--psm","6"])
+        return r.stdout.lower()
+    except FileNotFoundError:
+        return ""
 
 def audio_stats(path):
     with tempfile.TemporaryDirectory() as td:
@@ -162,9 +171,10 @@ def main():
     bad_any=[(p["t"],p["bad"]) for p in per if p["bad"]]
     if bad_any: issues.append(f"bad page frames (login/loading/error): {bad_any[:8]}")
     low_text=[p["t"] for p in per if p["textlen"]<10]
-    # expected keywords
-    missing=[kw for kw in expect if kw not in alltext_join]
+    # expected keywords (only meaningful when OCR is available)
+    missing=[kw for kw in expect if kw not in alltext_join] if HAS_OCR else []
     if missing: issues.append(f"expected keywords NOT found via OCR: {missing}")
+    if not HAS_OCR: issues.append("OCR skipped (tesseract not installed) — bad-page/keyword checks disabled")
     # static sections
     STATIC_THRESH=1.2  # mean abs gray diff on 480x300; tune
     for s in secs:
@@ -206,7 +216,11 @@ def main():
     print("\nISSUES:" if issues else "\nNo issues found.")
     for i in issues: print("  -",i)
     print(f"\nreport -> {out}")
-    sys.exit(0 if score>=80 and not any('STATIC' in i or 'bad page' in i or 'NO AUDIO' in i for i in issues) else 2)
+    # Documented QA gate: deliver at score >= 90 AND longest_silence < 4s (SKILL.md).
+    silence_ok = (aud_stats is None) or (aud_stats["longest_silence_s"] < 4)
+    gate_ok = (score >= 90 and silence_ok
+               and not any('STATIC' in i or 'bad page' in i or 'NO AUDIO' in i for i in issues))
+    sys.exit(0 if gate_ok else 2)
 
 if __name__=="__main__":
     main()
