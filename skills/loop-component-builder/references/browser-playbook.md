@@ -10,10 +10,16 @@ current accessibility snapshots and visible labels rather than fixed selectors.
 3. Select **Create new** or the current equivalent.
 4. Create a page in the personal/default workspace.
 5. Enter the title.
-6. Insert content by pasting a prepared block.
-7. Wait for autosave.
-8. Verify content.
-9. Copy the page link.
+6. Type `/` and select the real Loop structure: Checklist, Table, Bulleted list,
+   Numbered list, or another requested type.
+7. Insert content by pasting or typing a prepared block.
+8. Wait for autosave.
+9. Verify content and semantic roles.
+10. Capture the current `loop.cloud.microsoft/p/...` browser URL.
+
+Do not open **Share** or **Copy as Loop component** to get the URL unless the
+user explicitly asked to share. Those dialogs can produce an organization-wide
+edit link.
 
 ## Fast Table Input
 
@@ -41,8 +47,9 @@ editor's semantic controls. Do not abandon the Loop artifact.
 - Confirm expected column headers.
 - Confirm first and last rows/items.
 - Confirm total count when practical.
+- Confirm checklists expose real checkbox roles and tables expose rows/cells.
 - Reload only if needed to verify autosave.
-- Capture the canonical `loop.cloud.microsoft` link.
+- Capture the current private `loop.cloud.microsoft` link.
 
 ## Common Blockers
 
@@ -50,6 +57,5 @@ editor's semantic controls. Do not abandon the Loop artifact.
 - **No create permission:** switch to a writable personal workspace.
 - **Clipboard permission:** use direct browser typing/fill operations.
 - **Editor changed:** inspect a fresh browser snapshot and target visible labels.
-- **Share dialog defaults to broad access:** cancel sharing and copy the private
-  page link without changing permissions.
-
+- **Share dialog opened accidentally:** close it without copying or changing
+  permissions; use the current browser URL.

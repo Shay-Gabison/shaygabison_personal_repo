@@ -7,7 +7,7 @@
         "Opens the signed-in Microsoft Loop web app",
         "Creates a real Loop page with all 25 rows",
         "Does not create a TypeScript or Teams app project",
-        "Returns the working Loop link"
+        "Returns the current private Loop page URL without opening Share"
       ]
     },
     {
@@ -15,6 +15,7 @@
       "expected": [
         "Infers a checklist or task-list format",
         "Asks no question when the action items are supplied",
+        "Uses real Loop checklist items with checkbox roles",
         "Creates and verifies the visible Loop artifact",
         "Returns a concise link"
       ]

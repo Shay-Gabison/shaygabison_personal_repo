@@ -39,9 +39,9 @@ Target completion in about one minute.
 4. Use the user's existing signed-in Microsoft 365 session.
 5. Create a new Loop page in the default personal workspace or the most recently
    used writable workspace.
-6. Add the requested content.
+6. Add the requested content using Loop's real semantic content type.
 7. Verify the title and content are visible.
-8. Copy the page/component link and return it.
+8. Capture the current `loop.cloud.microsoft` page URL and return it.
 
 Do not spend time looking for an API or MCP when browser automation can create
 the requested artifact directly.
@@ -84,6 +84,15 @@ For tables:
 - Use concise column names.
 - Do not add IDs or metadata the user did not request.
 
+Use real Loop structures, not visual imitations:
+
+- Insert **Checklist** from Loop's `/` menu instead of typing checkbox glyphs.
+- Insert **Table** from Loop's `/` menu instead of pasting pipe-delimited text.
+- Insert **Bulleted list** or **Numbered list** instead of typing bullet
+  characters.
+- Verify the accessibility snapshot exposes checkboxes, list items, or table
+  cells matching the requested structure.
+
 ## Browser Workflow
 
 Use the connected Playwright/browser capability. Prefer semantic UI operations
@@ -95,12 +104,20 @@ and snapshots over brittle coordinate clicks.
 4. Set the title immediately.
 5. Insert the appropriate Loop content type.
 6. Populate content in as few operations as possible:
+   - Type `/`, select the semantic content type, and then enter the content.
    - For a table, paste tab-separated rows when the editor supports it.
-   - For prose or checklists, paste one prepared block.
+   - For a checklist, insert **Checklist**, then enter items separated by Enter.
+   - For prose, paste one prepared block.
 7. Wait for autosave/saved state.
 8. Re-read the page to confirm the first and last expected entries are present.
-9. Use the page's copy-link/share-link action.
-10. Return the title, link, workspace, and number of rows/items created.
+9. Capture the current browser URL.
+10. Return the title, private page URL, workspace, and number of rows/items
+    created.
+
+Do not click **Share** or **Copy as Loop component** just to obtain a URL. Those
+actions can open or create a broader organization-edit link. Use the current
+`loop.cloud.microsoft/p/...` URL unless the user explicitly asks to share the
+page or copy it as a portable component.
 
 If browser authentication is missing, navigate to the sign-in screen and ask the
 user to complete sign-in. Resume from the same browser session afterward.
@@ -110,6 +127,7 @@ user to complete sign-in. Resume from the same browser session afterward.
 - Create the page in a private/personal workspace by default.
 - Do not share the page, add members, change permissions, or send its link to
   anyone without explicit user approval.
+- Do not open the Share or Copy-as-component dialog during ordinary creation.
 - Do not overwrite or delete an existing page unless explicitly requested.
 - If a page with the same title exists, create a new page unless the user clearly
   asked to update the existing one.
@@ -125,7 +143,7 @@ The task is complete only when:
 - The expected content is present.
 - For a table, both the first and last expected rows are present.
 - Loop reports the page saved, or the content remains after a reload.
-- A working Loop URL is captured.
+- The current private `loop.cloud.microsoft` page URL is captured.
 
 If a UI limitation blocks one formatting feature, create the closest useful Loop
 structure and state the exact limitation. Do not replace the artifact with a
@@ -158,4 +176,3 @@ Created **<title>** in Microsoft Loop with <N> rows/items.
 ```
 
 Mention a blocker only if the artifact could not be created.
-
