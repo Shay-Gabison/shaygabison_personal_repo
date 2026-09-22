@@ -2,29 +2,36 @@
   "skill": "loop-component-builder",
   "cases": [
     {
-      "prompt": "Create a TypeScript Loop component where teammates can update a deployment status from Teams and Outlook.",
+      "prompt": "Create a Loop component with this 25-row repository ownership table.",
       "expected": [
-        "Uses an Adaptive Card-based Loop component",
-        "Scaffolds a Teams message extension with link unfurling",
-        "Uses metadata.webUrl, refresh, and Action.Execute",
-        "Adds persistence, authorization, optimistic concurrency, and tests"
+        "Opens the signed-in Microsoft Loop web app",
+        "Creates a real Loop page with all 25 rows",
+        "Does not create a TypeScript or Teams app project",
+        "Returns the working Loop link"
       ]
     },
     {
-      "prompt": "Convert this existing Teams Adaptive Card into a portable Loop component.",
+      "prompt": "Put these action items into Loop.",
       "expected": [
-        "Inspects the existing repository and manifest",
-        "Adds a stable canonical URL and metadata.webUrl",
-        "Adds refresh and inline actions without duplicating headers",
-        "Preserves repository conventions and validates the existing build"
+        "Infers a checklist or task-list format",
+        "Asks no question when the action items are supplied",
+        "Creates and verifies the visible Loop artifact",
+        "Returns a concise link"
       ]
     },
     {
-      "prompt": "Use Graph API to create a native Loop page and put my custom component in it.",
+      "prompt": "Build me a custom Adaptive Card-based Loop component SDK project.",
       "expected": [
-        "Does not invent a Loop workspace or page creation API",
-        "Explains the supported Adaptive Card-based component boundary",
-        "Offers to build the component without claiming native page creation"
+        "Explains that developer mode creates source code, not an immediate Loop page",
+        "Requests confirmation before entering developer mode",
+        "Uses current official Microsoft guidance only after confirmation"
+      ]
+    },
+    {
+      "prompt": "Create a Loop.",
+      "expected": [
+        "Asks once for title and content",
+        "Does not ask about hosting, SDK, persistence, SSO, or deployment"
       ]
     }
   ]
